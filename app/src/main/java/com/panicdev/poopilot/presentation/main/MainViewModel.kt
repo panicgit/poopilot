@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.repository.LocationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.TimeoutCancellationException
 import javax.inject.Inject
 
 enum class AppState {
@@ -29,17 +30,18 @@ class MainViewModel @Inject constructor(
     private val _currentLongitude = MutableLiveData(0.0)
     val currentLongitude: LiveData<Double> = _currentLongitude
 
-    private val _isLocationReady = MutableLiveData(false)
-    val isLocationReady: LiveData<Boolean> = _isLocationReady
+    private val _navigateToSearch = MutableLiveData(false)
+    val navigateToSearch: LiveData<Boolean> = _navigateToSearch
 
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    fun initialize() {
+    init {
         locationRepository.initialize()
     }
 
-    fun release() {
+    override fun onCleared() {
+        super.onCleared()
         locationRepository.release()
     }
 
@@ -55,16 +57,23 @@ class MainViewModel @Inject constructor(
                 if (location != null) {
                     _currentLatitude.value = location.latitude
                     _currentLongitude.value = location.longitude
-                    _isLocationReady.value = true
+                    _navigateToSearch.value = true
                 } else {
                     _errorMessage.value = "위치를 가져올 수 없습니다"
-                    _isLocationReady.value = false
+                    _appState.value = AppState.STANDBY
                 }
+            } catch (e: TimeoutCancellationException) {
+                _errorMessage.value = "위치 획득 시간 초과. 다시 시도해주세요."
+                _appState.value = AppState.STANDBY
             } catch (e: Exception) {
                 _errorMessage.value = "위치 획득 실패: ${e.message}"
-                _isLocationReady.value = false
+                _appState.value = AppState.STANDBY
             }
         }
+    }
+
+    fun onNavigateToSearchConsumed() {
+        _navigateToSearch.value = false
     }
 
     fun setNavigating() {
@@ -73,7 +82,7 @@ class MainViewModel @Inject constructor(
 
     fun resetToStandby() {
         _appState.value = AppState.STANDBY
-        _isLocationReady.value = false
+        _navigateToSearch.value = false
         _errorMessage.value = null
     }
 }

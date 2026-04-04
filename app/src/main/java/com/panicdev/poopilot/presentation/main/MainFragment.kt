@@ -31,8 +31,6 @@ class MainFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.initialize()
-
         binding.btnEmergency.setOnClickListener {
             viewModel.activateEmergencyMode()
         }
@@ -41,8 +39,9 @@ class MainFragment : Fragment() {
             findNavController().navigate(R.id.action_main_to_settings)
         }
 
-        viewModel.isLocationReady.observe(viewLifecycleOwner) { ready ->
-            if (ready) {
+        viewModel.navigateToSearch.observe(viewLifecycleOwner) { shouldNavigate ->
+            if (shouldNavigate) {
+                viewModel.onNavigateToSearchConsumed()
                 findNavController().navigate(R.id.action_main_to_search)
             }
         }

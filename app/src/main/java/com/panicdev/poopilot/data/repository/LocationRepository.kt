@@ -6,6 +6,8 @@ import ai.pleos.playground.navi.data.CurrentLocationInfo
 import ai.pleos.playground.navi.data.DestinationInfo
 import ai.pleos.playground.navi.data.RouteStateInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeout
+import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
@@ -14,78 +16,84 @@ import kotlin.coroutines.resume
 class LocationRepository @Inject constructor(
     private val naviHelper: NaviHelper
 ) {
-    private var isInitialized = false
+    private val isInitialized = AtomicBoolean(false)
+
+    companion object {
+        private const val TIMEOUT_MS = 10_000L
+    }
 
     fun initialize() {
-        if (!isInitialized) {
+        if (isInitialized.compareAndSet(false, true)) {
             naviHelper.initialize()
-            isInitialized = true
         }
     }
 
     fun release() {
-        if (isInitialized) {
+        if (isInitialized.compareAndSet(true, false)) {
             naviHelper.release()
-            isInitialized = false
         }
     }
 
     suspend fun getCurrentLocation(): CurrentLocationInfo? {
-        return suspendCancellableCoroutine { continuation ->
-            val listener = object : NaviHelperEventListener {
-                override fun onCurrentLocationInfo(info: CurrentLocationInfo) {
-                    naviHelper.removeListener(this)
-                    if (continuation.isActive) {
-                        continuation.resume(info)
+        return withTimeout(TIMEOUT_MS) {
+            suspendCancellableCoroutine { continuation ->
+                val listener = object : NaviHelperEventListener {
+                    override fun onCurrentLocationInfo(info: CurrentLocationInfo) {
+                        naviHelper.removeListener(this)
+                        if (continuation.isActive) {
+                            continuation.resume(info)
+                        }
                     }
                 }
-            }
-            naviHelper.addListener(listener)
-            naviHelper.getCurrentLocationInfo()
+                naviHelper.addListener(listener)
+                naviHelper.getCurrentLocationInfo()
 
-            continuation.invokeOnCancellation {
-                naviHelper.removeListener(listener)
+                continuation.invokeOnCancellation {
+                    naviHelper.removeListener(listener)
+                }
             }
         }
     }
 
     suspend fun getRouteState(): RouteStateInfo? {
-        return suspendCancellableCoroutine { continuation ->
-            val listener = object : NaviHelperEventListener {
-                override fun onRouteStateInfo(info: RouteStateInfo) {
-                    naviHelper.removeListener(this)
-                    if (continuation.isActive) {
-                        continuation.resume(info)
+        return withTimeout(TIMEOUT_MS) {
+            suspendCancellableCoroutine { continuation ->
+                val listener = object : NaviHelperEventListener {
+                    override fun onRouteStateInfo(info: RouteStateInfo) {
+                        naviHelper.removeListener(this)
+                        if (continuation.isActive) {
+                            continuation.resume(info)
+                        }
                     }
                 }
-            }
-            naviHelper.addListener(listener)
-            naviHelper.getRouteStateInfo()
+                naviHelper.addListener(listener)
+                naviHelper.getRouteStateInfo()
 
-            continuation.invokeOnCancellation {
-                naviHelper.removeListener(listener)
+                continuation.invokeOnCancellation {
+                    naviHelper.removeListener(listener)
+                }
             }
         }
     }
 
     suspend fun getDestinationInfo(): DestinationInfo? {
-        return suspendCancellableCoroutine { continuation ->
-            val listener = object : NaviHelperEventListener {
-                override fun onDestinationInfo(info: DestinationInfo) {
-                    naviHelper.removeListener(this)
-                    if (continuation.isActive) {
-                        continuation.resume(info)
+        return withTimeout(TIMEOUT_MS) {
+            suspendCancellableCoroutine { continuation ->
+                val listener = object : NaviHelperEventListener {
+                    override fun onDestinationInfo(info: DestinationInfo) {
+                        naviHelper.removeListener(this)
+                        if (continuation.isActive) {
+                            continuation.resume(info)
+                        }
                     }
                 }
-            }
-            naviHelper.addListener(listener)
-            naviHelper.getDestinationInfo()
+                naviHelper.addListener(listener)
+                naviHelper.getDestinationInfo()
 
-            continuation.invokeOnCancellation {
-                naviHelper.removeListener(listener)
+                continuation.invokeOnCancellation {
+                    naviHelper.removeListener(listener)
+                }
             }
         }
     }
-
-    fun getNaviHelper(): NaviHelper = naviHelper
 }

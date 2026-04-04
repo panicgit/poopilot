@@ -1,5 +1,6 @@
 package com.panicdev.poopilot.di
 
+import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.KakaoLocalApi
 import dagger.Module
 import dagger.Provides
@@ -20,7 +21,8 @@ object NetworkModule {
     fun provideOkHttpClient(): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.BODY
+                        else HttpLoggingInterceptor.Level.NONE
             })
             .build()
     }

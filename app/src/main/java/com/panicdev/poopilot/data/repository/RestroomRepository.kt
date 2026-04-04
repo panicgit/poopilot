@@ -13,7 +13,7 @@ class RestroomRepository @Inject constructor(
         latitude: Double,
         longitude: Double,
         radius: Int = 1000
-    ): List<KakaoPlace> {
+    ): Result<List<KakaoPlace>> {
         return try {
             val response = kakaoLocalApi.searchByKeyword(
                 apiKey = "KakaoAK ${getApiKey()}",
@@ -23,9 +23,9 @@ class RestroomRepository @Inject constructor(
                 radius = radius,
                 sort = "distance"
             )
-            response.documents
+            Result.success(response.documents)
         } catch (e: Exception) {
-            emptyList()
+            Result.failure(e)
         }
     }
 
