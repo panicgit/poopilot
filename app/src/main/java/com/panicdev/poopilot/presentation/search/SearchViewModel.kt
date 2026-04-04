@@ -18,7 +18,7 @@ class SearchViewModel @Inject constructor(
     private val _searchResults = MutableLiveData<List<KakaoPlace>>()
     val searchResults: LiveData<List<KakaoPlace>> = _searchResults
 
-    private val _isLoading = MutableLiveData(true)
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading
 
     private val _errorMessage = MutableLiveData<String?>()

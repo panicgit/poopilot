@@ -40,8 +40,11 @@ class NavigationFragment : Fragment() {
         val destLat = arguments?.getDouble("destLat") ?: 0.0
         val destLng = arguments?.getDouble("destLng") ?: 0.0
 
-        if (destName.isNotBlank()) {
+        if (destName.isNotBlank() && destLat != 0.0 && destLng != 0.0) {
             navViewModel.startNavigation(destName, destAddr, destLat, destLng)
+        } else {
+            Toast.makeText(requireContext(), "목적지 정보가 올바르지 않습니다", Toast.LENGTH_SHORT).show()
+            findNavController().navigateUp()
         }
 
         // 취소 버튼

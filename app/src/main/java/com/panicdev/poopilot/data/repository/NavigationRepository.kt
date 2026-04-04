@@ -120,8 +120,11 @@ class NavigationRepository @Inject constructor(
                     }
                 }
             }
-        } catch (e: Exception) {
+        } catch (e: kotlinx.coroutines.TimeoutCancellationException) {
+            // 타임아웃 시 기존 경로 없는 것으로 간주
             null
+        } catch (e: Exception) {
+            throw e  // 예상치 못한 에러는 호출자에게 전파
         }
 
         if (routeState?.isRouting == true) {

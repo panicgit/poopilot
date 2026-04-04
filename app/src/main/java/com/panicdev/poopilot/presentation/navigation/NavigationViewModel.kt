@@ -102,7 +102,12 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun formatTime(seconds: Int): String {
+        if (seconds <= 0) return "도착"
         val minutes = seconds / 60
-        return if (minutes > 0) "${minutes}분" else "${seconds}초"
+        return when {
+            minutes >= 60 -> "${minutes / 60}시간 ${minutes % 60}분"
+            minutes > 0 -> "${minutes}분"
+            else -> "${seconds}초"
+        }
     }
 }

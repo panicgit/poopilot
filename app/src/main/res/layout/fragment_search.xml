@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary"
-    android:padding="32dp">
+    android:padding="@dimen/screen_padding">
 
     <TextView
         android:id="@+id/tvSearchTitle"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="화장실 검색 중..."
         android:textColor="@color/text_primary"
-        android:textSize="24sp"
+        android:textSize="@dimen/text_title"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/tvSearchSub"
         app:layout_constraintEnd_toEndOf="parent"
@@ -57,8 +57,8 @@
 
     <ImageButton
         android:id="@+id/btnClose"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="@dimen/touch_target_min"
+        android:layout_height="@dimen/touch_target_min"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@android:drawable/ic_menu_close_clear_cancel"
         android:contentDescription="Close"

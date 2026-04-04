@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_primary"
-    android:padding="32dp">
+    android:padding="@dimen/screen_padding">
 
     <TextView
         android:id="@+id/tvNavLogo"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="Poopilot"
         android:textColor="@color/text_primary"
-        android:textSize="20sp"
+        android:textSize="@dimen/text_title"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -22,9 +22,10 @@
         android:id="@+id/btnCancel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:minHeight="@dimen/touch_target_min"
         android:text="취소"
         android:textColor="@color/emergency_red"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_body"
         android:textStyle="bold"
         android:clickable="true"
         android:focusable="true"
@@ -37,7 +38,7 @@
         android:layout_height="wrap_content"
         android:text="도착까지"
         android:textColor="@color/text_secondary"
-        android:textSize="16sp"
+        android:textSize="@dimen/text_body"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@id/tvTimeValue"
@@ -51,7 +52,7 @@
         android:fontFamily="monospace"
         android:text="--"
         android:textColor="@color/text_primary"
-        android:textSize="96sp"
+        android:textSize="@dimen/text_countdown"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -97,7 +98,7 @@
             android:layout_marginTop="4dp"
             android:text="주소"
             android:textColor="@color/text_secondary"
-            android:textSize="13sp" />
+            android:textSize="@dimen/text_caption" />
     </LinearLayout>
 
     <TextView
@@ -110,7 +111,7 @@
         android:padding="14dp"
         android:text="도착 시 도어 자동 언락"
         android:textColor="@color/success_green"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_body_small"
         app:layout_constraintBottom_toTopOf="@id/btnChangeRoute"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -124,7 +125,7 @@
         android:padding="14dp"
         android:text="더 가까운 곳으로 변경"
         android:textColor="@color/text_secondary"
-        android:textSize="14sp"
+        android:textSize="@dimen/text_body_small"
         android:clickable="true"
         android:focusable="true"
         app:layout_constraintBottom_toBottomOf="parent"
