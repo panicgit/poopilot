@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_primary"
+    android:orientation="horizontal">
+
+    <!-- Left Panel: Emergency Button -->
+    <FrameLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <View
+                android:id="@+id/btnEmergency"
+                android:layout_width="280dp"
+                android:layout_height="280dp"
+                android:background="@drawable/emergency_button_bg"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/tvButtonLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="급똥모드"
+                android:textColor="@color/emergency_red"
+                android:textSize="36sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvButtonSub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="터치 또는 &quot;급똥모드!&quot; 음성으로 활성화"
+                android:textColor="@color/text_muted"
+                android:textSize="15sp" />
+        </LinearLayout>
+    </FrameLayout>
+
+    <!-- Right Panel: Info -->
+    <LinearLayout
+        android:layout_width="@dimen/side_panel_width"
+        android:layout_height="match_parent"
+        android:background="@color/bg_secondary"
+        android:orientation="vertical"
+        android:padding="@dimen/screen_padding">
+
+        <!-- Header -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvLogo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Poopilot"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_title"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnSettings"
+                android:layout_width="@dimen/touch_target_min"
+                android:layout_height="@dimen/touch_target_min"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Settings"
+                android:src="@android:drawable/ic_menu_preferences"
+                android:tint="@color/text_muted" />
+        </LinearLayout>
+
+        <!-- Status -->
+        <LinearLayout
+            android:id="@+id/statusBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:background="@drawable/status_bar_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/card_padding">
+
+            <View
+                android:id="@+id/statusDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginEnd="@dimen/spacing_sm"
+                android:background="@drawable/status_dot_green" />
+
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="대기 중 · 음성 인식 활성"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_body_small" />
+        </LinearLayout>
+
+        <!-- Favorites Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:text="단골 화장실"
+            android:textColor="@color/text_muted"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:background="@drawable/card_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/card_padding">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:text="⭐"
+                android:textSize="16sp" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="즐겨찾기에 추가하세요"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="@dimen/text_body_small" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Recent Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_xl"
+            android:text="최근 방문"
+            android:textColor="@color/text_muted"
+            android:textSize="@dimen/text_caption"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:background="@drawable/card_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="@dimen/card_padding">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/spacing_md"
+                android:text="📍"
+                android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="아직 방문 이력이 없습니다"
+                android:textColor="@color/text_secondary"
+                android:textSize="@dimen/text_body_small" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
