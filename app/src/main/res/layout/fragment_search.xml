@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0A0A0A"
+    android:background="@color/bg_primary"
     android:padding="32dp">
 
     <TextView
@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="화장실 검색 중..."
-        android:textColor="#FFFFFF"
+        android:textColor="@color/text_primary"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@id/tvSearchSub"
@@ -29,7 +29,7 @@
         android:layout_marginTop="12dp"
         android:text="현재 위치 기준 가장 가까운 화장실을 찾고 있습니다"
         android:textAlignment="center"
-        android:textColor="#A1A1AA"
+        android:textColor="@color/text_secondary"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,7 +40,7 @@
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginBottom="24dp"
-        android:indeterminateTint="#A855F7"
+        android:indeterminateTint="@color/accent_purple"
         app:layout_constraintBottom_toTopOf="@id/tvSearchTitle"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -64,6 +64,6 @@
         android:contentDescription="Close"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tint="#717171" />
+        app:tint="@color/text_muted" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

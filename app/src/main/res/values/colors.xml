@@ -1,5 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Background -->
+    <color name="bg_primary">#FF0A0A0A</color>
+    <color name="bg_secondary">#FF111111</color>
+    <color name="bg_card">#FF1A1A1A</color>
+
+    <!-- Text -->
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FFA1A1AA</color>
+    <color name="text_muted">#FF71717A</color>
+    <color name="text_inverse">#FF0A0A0A</color>
+
+    <!-- Accent -->
+    <color name="accent_purple">#FFA855F7</color>
+    <color name="accent_purple_dim">#1AA855F7</color>
+    <color name="emergency_red">#FFFF3B30</color>
+    <color name="emergency_red_dark">#FFCC2D24</color>
+    <color name="emergency_red_glow">#55FF3B30</color>
+    <color name="success_green">#FF4ADE80</color>
+    <color name="success_green_dim">#184ADE80</color>
+    <color name="star_yellow">#FFFBBF24</color>
+
+    <!-- UI Elements -->
+    <color name="border_subtle">#3371717A</color>
+    <color name="divider">#FF2A2A2A</color>
+
+    <!-- Legacy (keep for compatibility) -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
