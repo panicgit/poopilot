@@ -24,9 +24,6 @@ class MainActivity : AppCompatActivity() {
         val command = intent?.getStringExtra(GleoAiReceiver.EXTRA_GLEO_COMMAND) ?: return
         intent.removeExtra(GleoAiReceiver.EXTRA_GLEO_COMMAND)
 
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
-        val currentFragment = navHostFragment?.childFragmentManager?.fragments?.firstOrNull()
-
         when (command) {
             GleoAiReceiver.COMMAND_ACTIVATE -> {
                 // MainFragment의 ViewModel이 이 이벤트를 처리
@@ -45,7 +42,7 @@ sealed class GleoCommand {
 }
 
 object GleoCommandBus {
-    private val _commands = kotlinx.coroutines.flow.MutableSharedFlow<GleoCommand>(extraBufferCapacity = 5)
+    private val _commands = kotlinx.coroutines.flow.MutableSharedFlow<GleoCommand>(replay = 1, extraBufferCapacity = 5)
     val commands: kotlinx.coroutines.flow.SharedFlow<GleoCommand> = _commands
 
     fun emit(command: GleoCommand) {

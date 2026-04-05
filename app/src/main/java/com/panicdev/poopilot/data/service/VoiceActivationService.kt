@@ -21,6 +21,7 @@ class VoiceActivationService @Inject constructor(
     @Volatile
     private var isActive = false
     private var monitorJob: Job? = null
+    private var errorRetryCount = 0
 
     private val _activationEvents = MutableSharedFlow<String>(extraBufferCapacity = 5)
     val activationEvents: SharedFlow<String> = _activationEvents
@@ -33,6 +34,7 @@ class VoiceActivationService @Inject constructor(
         }
 
         isActive = true
+        errorRetryCount = 0
         sttRepository.initialize()
 
         monitorJob = scope.launch {
@@ -40,22 +42,29 @@ class VoiceActivationService @Inject constructor(
                 when (event) {
                     is SttEvent.KeywordDetected -> {
                         Log.d(TAG, "Activation keyword: ${event.keyword}")
+                        errorRetryCount = 0
                         _activationEvents.tryEmit(event.keyword)
-                        // Stop listening after keyword detected
                         sttRepository.stopListening()
                     }
+                    is SttEvent.RecognitionStarted -> {
+                        errorRetryCount = 0
+                    }
                     is SttEvent.RecognitionEnded -> {
-                        // Auto-restart listening for continuous keyword detection
                         if (isActive && settingsRepository.voiceCommandEnabled) {
                             delay(500L)
                             sttRepository.startListening()
                         }
                     }
                     is SttEvent.Error -> {
-                        // Retry after error with backoff
-                        if (isActive) {
-                            delay(2_000L)
+                        if (isActive && errorRetryCount < MAX_RETRIES) {
+                            errorRetryCount++
+                            val backoffMs = 2_000L * errorRetryCount
+                            Log.w(TAG, "STT error, retry $errorRetryCount/$MAX_RETRIES in ${backoffMs}ms")
+                            delay(backoffMs)
                             sttRepository.startListening()
+                        } else if (errorRetryCount >= MAX_RETRIES) {
+                            Log.e(TAG, "Max retries ($MAX_RETRIES) reached, stopping voice activation")
+                            stop()
                         }
                     }
                     else -> {}
@@ -72,6 +81,7 @@ class VoiceActivationService @Inject constructor(
         monitorJob?.cancel()
         monitorJob = null
         sttRepository.stopListening()
+        errorRetryCount = 0
         Log.d(TAG, "Voice activation service stopped")
     }
 
@@ -79,5 +89,6 @@ class VoiceActivationService @Inject constructor(
 
     companion object {
         private const val TAG = "VoiceActivation"
+        private const val MAX_RETRIES = 5
     }
 }

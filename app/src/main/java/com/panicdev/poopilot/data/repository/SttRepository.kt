@@ -82,9 +82,11 @@ class SttRepository @Inject constructor(
             Log.d(TAG, "STT initialized")
         } catch (e: Exception) {
             Log.e(TAG, "STT initialization failed", e)
+            _sttEvents.tryEmit(SttEvent.Error("음성 인식 초기화 실패"))
         }
     }
 
+    @Synchronized
     fun startListening() {
         if (!isInitialized) initialize()
         if (isListening) return
@@ -99,6 +101,7 @@ class SttRepository @Inject constructor(
         }
     }
 
+    @Synchronized
     fun stopListening() {
         if (!isListening) return
         try {
@@ -110,6 +113,7 @@ class SttRepository @Inject constructor(
         }
     }
 
+    @Synchronized
     fun release() {
         try {
             stopListening()

@@ -44,7 +44,8 @@
         </activity>
         <receiver
             android:name=".data.receiver.GleoAiReceiver"
-            android:exported="true">
+            android:exported="true"
+            android:permission="pleos.car.permission.LLM_SERVICE">
             <intent-filter>
                 <action android:name="com.panicdev.poopilot.ACTION_ACTIVATE_EMERGENCY" />
                 <action android:name="com.panicdev.poopilot.ACTION_CANCEL_EMERGENCY" />

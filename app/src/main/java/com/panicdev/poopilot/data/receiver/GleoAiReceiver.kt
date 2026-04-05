@@ -1,5 +1,6 @@
 package com.panicdev.poopilot.data.receiver
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -18,8 +19,8 @@ class GleoAiReceiver : BroadcastReceiver() {
                     putExtra(EXTRA_GLEO_COMMAND, COMMAND_ACTIVATE)
                 }
                 context.startActivity(launchIntent)
-                setResultCode(RESULT_OK)
-                setResultData("{\"status\":\"success\",\"message\":\"급똥모드 활성화\"}")
+                resultCode = Activity.RESULT_OK
+                resultData = "{\"status\":\"success\",\"message\":\"급똥모드 활성화\"}"
             }
             ACTION_CANCEL_EMERGENCY -> {
                 val launchIntent = Intent(context, MainActivity::class.java).apply {
@@ -27,12 +28,12 @@ class GleoAiReceiver : BroadcastReceiver() {
                     putExtra(EXTRA_GLEO_COMMAND, COMMAND_CANCEL)
                 }
                 context.startActivity(launchIntent)
-                setResultCode(RESULT_OK)
-                setResultData("{\"status\":\"success\",\"message\":\"급똥모드 취소\"}")
+                resultCode = Activity.RESULT_OK
+                resultData = "{\"status\":\"success\",\"message\":\"급똥모드 취소\"}"
             }
             else -> {
                 Log.w(TAG, "Unknown action: ${intent.action}")
-                setResultCode(RESULT_CANCELED)
+                resultCode = Activity.RESULT_CANCELED
             }
         }
     }
@@ -44,7 +45,5 @@ class GleoAiReceiver : BroadcastReceiver() {
         const val EXTRA_GLEO_COMMAND = "gleo_command"
         const val COMMAND_ACTIVATE = "activate"
         const val COMMAND_CANCEL = "cancel"
-        private const val RESULT_OK = 0
-        private const val RESULT_CANCELED = 1
     }
 }
