@@ -1,0 +1,55 @@
+{
+  "appId": "com.panicdev.poopilot",
+  "version": "1.0",
+  "functions": [
+    {
+      "name": "ACTIVATE_EMERGENCY_RESTROOM",
+      "description": "긴급 화장실 찾기 모드를 활성화합니다. 현재 위치에서 가장 가까운 화장실을 검색하고 경로 안내를 시작합니다.",
+      "parameters": [],
+      "triggers": [
+        "급똥모드",
+        "화장실 찾아줘",
+        "급해",
+        "화장실 어디",
+        "가까운 화장실",
+        "화장실 급해",
+        "급똥"
+      ],
+      "response": {
+        "type": "callback",
+        "action": "com.panicdev.poopilot.ACTION_ACTIVATE_EMERGENCY",
+        "resultFormat": {
+          "success": {
+            "message": "가장 가까운 화장실로 안내를 시작합니다.",
+            "tts": true
+          },
+          "failure": {
+            "message": "화장실 검색에 실패했습니다. 다시 시도해주세요.",
+            "tts": true
+          }
+        }
+      }
+    },
+    {
+      "name": "CANCEL_EMERGENCY_RESTROOM",
+      "description": "진행 중인 긴급 화장실 안내를 취소합니다.",
+      "parameters": [],
+      "triggers": [
+        "취소",
+        "안내 취소",
+        "급똥모드 취소",
+        "그만"
+      ],
+      "response": {
+        "type": "callback",
+        "action": "com.panicdev.poopilot.ACTION_CANCEL_EMERGENCY",
+        "resultFormat": {
+          "success": {
+            "message": "화장실 안내가 취소되었습니다.",
+            "tts": true
+          }
+        }
+      }
+    }
+  ]
+}
