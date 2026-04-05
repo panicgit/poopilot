@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.model.KakaoPlace
 import com.panicdev.poopilot.data.repository.LlmRepository
+import com.panicdev.poopilot.data.repository.PublicRestroomRepository
 import com.panicdev.poopilot.data.repository.RestroomRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val restroomRepository: RestroomRepository,
-    private val llmRepository: LlmRepository
+    private val llmRepository: LlmRepository,
+    private val publicRestroomRepository: PublicRestroomRepository
 ) : ViewModel() {
 
     private val _searchResults = MutableLiveData<List<KakaoPlace>>()
@@ -37,22 +39,37 @@ class SearchViewModel @Inject constructor(
         _errorMessage.value = null
 
         viewModelScope.launch {
-            val result = restroomRepository.searchNearbyRestrooms(latitude, longitude, radius)
+            val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, radius)
+            val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, radius)
             _isLoading.value = false
 
-            result.onSuccess { places ->
-                if (places.isEmpty()) {
-                    _errorMessage.value = "주변에 화장실을 찾을 수 없습니다"
-                }
-                _searchResults.value = places
-                if (places.size > 1) {
-                    filterWithLlm(places)
-                }
-            }.onFailure { error ->
-                _errorMessage.value = "검색 실패: ${error.message}"
-                _searchResults.value = emptyList()
+            val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
+            val publicPlaces = publicResult.getOrDefault(emptyList())
+
+            val merged = mergeResults(kakaoPlaces, publicPlaces)
+
+            if (merged.isEmpty()) {
+                _errorMessage.value = "주변에 화장실을 찾을 수 없습니다"
+            }
+            _searchResults.value = merged
+            if (merged.size > 1) {
+                filterWithLlm(merged)
+            }
+
+            if (kakaoResult.isFailure && publicResult.isFailure) {
+                _errorMessage.value = "검색 실패: ${kakaoResult.exceptionOrNull()?.message}"
             }
         }
+    }
+
+    private fun mergeResults(
+        kakaoPlaces: List<KakaoPlace>,
+        publicPlaces: List<KakaoPlace>
+    ): List<KakaoPlace> {
+        val kakaoNames = kakaoPlaces.map { it.placeName }.toSet()
+        val uniquePublic = publicPlaces.filter { it.placeName !in kakaoNames }
+        return (kakaoPlaces + uniquePublic)
+            .sortedBy { it.distance.toIntOrNull() ?: Int.MAX_VALUE }
     }
 
     private fun filterWithLlm(places: List<KakaoPlace>) {

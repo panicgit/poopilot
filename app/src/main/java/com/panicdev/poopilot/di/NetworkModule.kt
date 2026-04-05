@@ -2,6 +2,7 @@ package com.panicdev.poopilot.di
 
 import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.KakaoLocalApi
+import com.panicdev.poopilot.data.api.PublicRestroomApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -10,6 +11,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import javax.inject.Named
 import javax.inject.Singleton
 
 @Module
@@ -36,5 +38,16 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(KakaoLocalApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providePublicRestroomApi(client: OkHttpClient): PublicRestroomApi {
+        return Retrofit.Builder()
+            .baseUrl("https://api.odcloud.kr/api/")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(PublicRestroomApi::class.java)
     }
 }
