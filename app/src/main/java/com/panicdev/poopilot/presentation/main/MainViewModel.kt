@@ -4,6 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.panicdev.poopilot.GleoCommand
+import com.panicdev.poopilot.GleoCommandBus
 import com.panicdev.poopilot.data.repository.LocationRepository
 import com.panicdev.poopilot.data.service.VoiceActivationService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +46,7 @@ class MainViewModel @Inject constructor(
     init {
         locationRepository.initialize()
         startVoiceActivation()
+        observeGleoCommands()
     }
 
     override fun onCleared() {
@@ -71,6 +74,23 @@ class MainViewModel @Inject constructor(
     fun restartVoiceActivation() {
         if (!voiceActivationService.isRunning()) {
             voiceActivationService.start(viewModelScope)
+        }
+    }
+
+    private fun observeGleoCommands() {
+        viewModelScope.launch {
+            GleoCommandBus.commands.collect { command ->
+                when (command) {
+                    is GleoCommand.Activate -> {
+                        if (_appState.value == AppState.STANDBY) {
+                            activateEmergencyMode()
+                        }
+                    }
+                    is GleoCommand.Cancel -> {
+                        resetToStandby()
+                    }
+                }
+            }
         }
     }
 
