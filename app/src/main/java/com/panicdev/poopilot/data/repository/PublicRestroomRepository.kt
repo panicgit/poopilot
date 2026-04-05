@@ -1,6 +1,7 @@
 package com.panicdev.poopilot.data.repository
 
 import android.util.Log
+import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.PublicRestroomApi
 import com.panicdev.poopilot.data.model.KakaoPlace
 import com.panicdev.poopilot.data.model.PublicRestroom
@@ -76,6 +77,6 @@ class PublicRestroomRepository @Inject constructor(
 
     companion object {
         private const val TAG = "PublicRestroomRepo"
-        private const val PUBLIC_API_KEY = "" // Sprint 5: 공공데이터포털 API 키 필요
+        private val PUBLIC_API_KEY = BuildConfig.PUBLIC_DATA_API_KEY
     }
 }

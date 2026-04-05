@@ -17,11 +17,15 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // API keys from local.properties (do not commit actual keys)
+        buildConfigField("String", "KAKAO_API_KEY", "\"${project.findProperty("KAKAO_API_KEY") ?: ""}\"")
+        buildConfigField("String", "PUBLIC_DATA_API_KEY", "\"${project.findProperty("PUBLIC_DATA_API_KEY") ?: ""}\"")
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -37,6 +41,7 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
