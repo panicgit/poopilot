@@ -60,7 +60,7 @@ dependencies {
     implementation("ai.pleos.playground:Vehicle:2.0.3")
     implementation("ai.pleos.playground:NaviHelper:2.0.3")
     implementation("ai.pleos.playground:SpeechToText:2.1.3.2")
-    implementation("ai.pleos.playground:TextToSppech:2.1.5.1")
+    implementation("ai.pleos.playground:TextToSpeech:2.1.5.1")
     implementation("ai.pleos.playground:LLM:2.1.3.2")
 
     // Hilt
