@@ -16,9 +16,10 @@ class DoorRepository @Inject constructor(
     fun unlockDriverDoor(onFailed: (Exception) -> Unit = {}) {
         try {
             door.setDoorLock(
-                area = DoorArea(DoorValue.ROW_1_LEFT),
-                locked = false,
-                onFailed = { e ->
+                DoorArea(DoorValue.ROW_1_LEFT),
+                false,
+                { _, _ -> Log.d(TAG, "Driver door unlocked") },
+                { e ->
                     Log.e(TAG, "Driver door unlock failed", e)
                     onFailed(e)
                 }
@@ -39,9 +40,10 @@ class DoorRepository @Inject constructor(
         try {
             areas.forEach { doorValue ->
                 door.setDoorLock(
-                    area = DoorArea(doorValue),
-                    locked = false,
-                    onFailed = { e ->
+                    DoorArea(doorValue),
+                    false,
+                    { _, _ -> Log.d(TAG, "Door unlocked: $doorValue") },
+                    { e ->
                         Log.e(TAG, "Door unlock failed for $doorValue", e)
                         onFailed(e)
                     }

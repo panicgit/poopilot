@@ -25,7 +25,8 @@ class TtsRepository @Inject constructor(
         override fun onDone() {
             abandonAudioFocus()
         }
-        override fun onError() {
+        override fun onError(message: String) {
+            Log.e(TAG, "TTS error: $message")
             abandonAudioFocus()
         }
         override fun onReady() {}
@@ -33,7 +34,7 @@ class TtsRepository @Inject constructor(
         override fun onStop() {
             abandonAudioFocus()
         }
-        override fun onUpdatedRms(rms: Float) {}
+        override fun onUpdatedRms(rms: Double) {}
     }
     @Volatile
     private var isInitialized = false

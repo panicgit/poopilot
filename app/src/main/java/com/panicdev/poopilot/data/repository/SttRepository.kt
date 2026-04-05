@@ -66,10 +66,6 @@ class SttRepository @Inject constructor(
         override fun onUpdatedEpdData(on: Long, off: Long) {
             // EPD data for voice activity detection
         }
-
-        override fun onUpdatedRms(rms: Float) {
-            // RMS audio level updates
-        }
     }
 
     @Synchronized

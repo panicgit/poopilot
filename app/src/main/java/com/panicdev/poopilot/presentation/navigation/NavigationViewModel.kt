@@ -90,9 +90,15 @@ class NavigationViewModel @Inject constructor(
                         speakIfAvailable("${_destinationName.value}까지 $timeText 소요됩니다")
                     }
                     is NavigationEvent.TBTUpdated -> {
-                        _remainingDistance.value = formatDistance(event.info.remainDistance)
-                        _remainingTime.value = formatTime(event.info.remainTime)
-                        _tbtDescription.value = event.info.description ?: ""
+                        val firstTbt = event.tbtList.firstOrNull()
+                        if (firstTbt != null) {
+                            _tbtDescription.value = firstTbt.description ?: ""
+                        }
+                    }
+                    is NavigationEvent.DrivingInfoUpdated -> {
+                        val dest = event.info.destination
+                        _remainingDistance.value = formatDistance(dest.distance)
+                        _remainingTime.value = formatTime(dest.duration)
                     }
                     is NavigationEvent.DestinationArrived -> {
                         _hasArrived.value = true

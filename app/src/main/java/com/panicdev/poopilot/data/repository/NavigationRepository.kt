@@ -2,6 +2,7 @@ package com.panicdev.poopilot.data.repository
 
 import ai.pleos.playground.navi.helper.NaviHelper
 import ai.pleos.playground.navi.helper.listener.NaviHelperEventListener
+import ai.pleos.playground.navi.data.DrivingInfo
 import ai.pleos.playground.navi.data.RouteInfo
 import ai.pleos.playground.navi.data.RouteStateInfo
 import ai.pleos.playground.navi.data.RequestWaypointInfo
@@ -24,7 +25,8 @@ sealed class NavigationEvent {
     data class RouteStarted(val info: RouteStartInfo) : NavigationEvent()
     object RouteCancelled : NavigationEvent()
     data class DestinationArrived(val info: DestinationArrivedInfo) : NavigationEvent()
-    data class TBTUpdated(val info: TBTInfo) : NavigationEvent()
+    data class TBTUpdated(val tbtList: List<TBTInfo>) : NavigationEvent()
+    data class DrivingInfoUpdated(val info: DrivingInfo) : NavigationEvent()
 }
 
 @Singleton
@@ -50,9 +52,13 @@ class NavigationRepository @Inject constructor(
             _navigationEvents.tryEmit(NavigationEvent.DestinationArrived(info))
         }
 
-        override fun onTBTInfo(info: TBTInfo) {
-            _currentTBT.value = info
+        override fun onTBTInfo(info: List<TBTInfo>) {
+            _currentTBT.value = info.firstOrNull()
             _navigationEvents.tryEmit(NavigationEvent.TBTUpdated(info))
+        }
+
+        override fun onDrivingInfo(info: DrivingInfo) {
+            _navigationEvents.tryEmit(NavigationEvent.DrivingInfoUpdated(info))
         }
     }
 
@@ -88,10 +94,13 @@ class NavigationRepository @Inject constructor(
         poiName: String
     ) {
         val waypointInfo = RequestWaypointInfo(
-            latitude = latitude,
             longitude = longitude,
+            latitude = latitude,
+            poiName = poiName,
             waypointIndex = WaypointIndex.FIRST,
-            poiName = poiName
+            poiId = "",
+            address = "",
+            poiSubId = "0"
         )
         naviHelper.addWaypoint(waypointInfo)
     }
