@@ -6,9 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.GleoCommand
 import com.panicdev.poopilot.GleoCommandBus
+import com.panicdev.poopilot.data.db.FavoriteRestroom
+import com.panicdev.poopilot.data.repository.FavoriteRepository
 import com.panicdev.poopilot.data.repository.LocationRepository
 import com.panicdev.poopilot.data.service.VoiceActivationService
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.TimeoutCancellationException
 import javax.inject.Inject
@@ -22,7 +25,8 @@ enum class AppState {
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val locationRepository: LocationRepository,
-    private val voiceActivationService: VoiceActivationService
+    private val voiceActivationService: VoiceActivationService,
+    private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
 
     private val _appState = MutableLiveData(AppState.STANDBY)
@@ -43,10 +47,41 @@ class MainViewModel @Inject constructor(
     private val _voiceActivated = MutableLiveData(false)
     val voiceActivated: LiveData<Boolean> = _voiceActivated
 
+    private val _favorites = MutableLiveData<List<FavoriteRestroom>>(emptyList())
+    val favorites: LiveData<List<FavoriteRestroom>> = _favorites
+
+    private val _recentVisits = MutableLiveData<List<FavoriteRestroom>>(emptyList())
+    val recentVisits: LiveData<List<FavoriteRestroom>> = _recentVisits
+
+    private val _navigateToFavorite = MutableLiveData<FavoriteRestroom?>()
+    val navigateToFavorite: LiveData<FavoriteRestroom?> = _navigateToFavorite
+
     init {
         locationRepository.initialize()
         startVoiceActivation()
         observeGleoCommands()
+        loadFavorites()
+    }
+
+    private fun loadFavorites() {
+        viewModelScope.launch {
+            favoriteRepository.getFavorites().collectLatest { list ->
+                _favorites.value = list
+            }
+        }
+        viewModelScope.launch {
+            favoriteRepository.getRecentVisits().collectLatest { list ->
+                _recentVisits.value = list
+            }
+        }
+    }
+
+    fun navigateToFavorite(restroom: FavoriteRestroom) {
+        _navigateToFavorite.value = restroom
+    }
+
+    fun onNavigateToFavoriteConsumed() {
+        _navigateToFavorite.value = null
     }
 
     override fun onCleared() {

@@ -119,36 +119,23 @@
             android:textSize="@dimen/text_caption"
             android:textStyle="bold" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvFavEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
             android:background="@drawable/card_bg"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="@dimen/card_padding">
+            android:padding="@dimen/card_padding"
+            android:text="즐겨찾기에 추가하세요"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body_small" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/spacing_md"
-                android:text="⭐"
-                android:textSize="16sp" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="즐겨찾기에 추가하세요"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="@dimen/text_body_small" />
-            </LinearLayout>
-        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvFavorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:visibility="gone" />
 
         <!-- Recent Section -->
         <TextView
@@ -160,28 +147,22 @@
             android:textSize="@dimen/text_caption"
             android:textStyle="bold" />
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tvRecentEmpty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/spacing_md"
             android:background="@drawable/card_bg"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:padding="@dimen/card_padding">
+            android:padding="@dimen/card_padding"
+            android:text="아직 방문 이력이 없습니다"
+            android:textColor="@color/text_secondary"
+            android:textSize="@dimen/text_body_small" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="@dimen/spacing_md"
-                android:text="📍"
-                android:textSize="16sp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="아직 방문 이력이 없습니다"
-                android:textColor="@color/text_secondary"
-                android:textSize="@dimen/text_body_small" />
-        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvRecent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_md"
+            android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>
