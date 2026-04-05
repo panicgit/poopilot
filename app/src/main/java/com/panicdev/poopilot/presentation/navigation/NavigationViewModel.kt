@@ -5,8 +5,10 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.repository.DoorRepository
+import com.panicdev.poopilot.data.repository.FavoriteRepository
 import com.panicdev.poopilot.data.repository.NavigationEvent
 import com.panicdev.poopilot.data.repository.NavigationRepository
+import com.panicdev.poopilot.data.repository.RestroomRepository
 import com.panicdev.poopilot.data.repository.SettingsRepository
 import com.panicdev.poopilot.data.repository.TtsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,7 +22,9 @@ class NavigationViewModel @Inject constructor(
     private val navigationRepository: NavigationRepository,
     private val doorRepository: DoorRepository,
     private val ttsRepository: TtsRepository,
-    private val settingsRepository: SettingsRepository
+    private val settingsRepository: SettingsRepository,
+    private val restroomRepository: RestroomRepository,
+    private val favoriteRepository: FavoriteRepository
 ) : ViewModel() {
 
     private val _remainingDistance = MutableLiveData("--")
@@ -48,6 +52,13 @@ class NavigationViewModel @Inject constructor(
     val isNavigating: LiveData<Boolean> = _isNavigating
 
     private var tbtPollingJob: Job? = null
+    private var reSearchJob: Job? = null
+
+    private val _closerPlaceSuggestion = MutableLiveData<String?>()
+    val closerPlaceSuggestion: LiveData<String?> = _closerPlaceSuggestion
+
+    private var currentDestLat = 0.0
+    private var currentDestLng = 0.0
 
     init {
         ttsRepository.initialize()
@@ -58,6 +69,7 @@ class NavigationViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         stopTbtPolling()
+        stopReSearch()
         ttsRepository.stop()
         navigationRepository.unregisterListener()
     }
@@ -71,6 +83,7 @@ class NavigationViewModel @Inject constructor(
                         _remainingTime.value = formatTime(event.info.duration)
                         _isNavigating.value = true
                         startTbtPolling()
+                        startReSearch(currentDestLat, currentDestLng)
                         val timeText = formatTime(event.info.duration)
                         speakIfAvailable("${_destinationName.value}까지 $timeText 소요됩니다")
                     }
@@ -83,6 +96,8 @@ class NavigationViewModel @Inject constructor(
                         _hasArrived.value = true
                         _isNavigating.value = false
                         stopTbtPolling()
+                        stopReSearch()
+                        recordVisit()
                         if (settingsRepository.doorUnlockEnabled) {
                             doorRepository.unlockDriverDoor()
                             val message = "도착했습니다! 문이 열렸습니다!"
@@ -105,6 +120,8 @@ class NavigationViewModel @Inject constructor(
     fun startNavigation(name: String, address: String, lat: Double, lng: Double) {
         _destinationName.value = name
         _destinationAddress.value = address
+        currentDestLat = lat
+        currentDestLng = lng
 
         viewModelScope.launch {
             try {
@@ -120,8 +137,65 @@ class NavigationViewModel @Inject constructor(
 
     fun cancelNavigation() {
         stopTbtPolling()
+        stopReSearch()
         _isNavigating.value = false
         navigationRepository.cancelRoute()
+    }
+
+    private fun startReSearch(lat: Double, lng: Double) {
+        reSearchJob?.cancel()
+        reSearchJob = viewModelScope.launch {
+            delay(60_000L) // 1분 후 첫 재탐색
+            while (_isNavigating.value == true) {
+                checkForCloserRestroom(lat, lng)
+                delay(120_000L) // 이후 2분 간격
+            }
+        }
+    }
+
+    private fun stopReSearch() {
+        reSearchJob?.cancel()
+        reSearchJob = null
+    }
+
+    private suspend fun checkForCloserRestroom(lat: Double, lng: Double) {
+        val result = restroomRepository.searchNearbyRestrooms(lat, lng, settingsRepository.searchRadius)
+        result.onSuccess { places ->
+            val closer = places.firstOrNull()
+            if (closer != null) {
+                val closerLat = closer.y.toDoubleOrNull() ?: return@onSuccess
+                val closerLng = closer.x.toDoubleOrNull() ?: return@onSuccess
+                val closerDist = closer.distance.toIntOrNull() ?: return@onSuccess
+                if (closerLat != currentDestLat && closerLng != currentDestLng && closerDist > 0) {
+                    _closerPlaceSuggestion.postValue("더 가까운 화장실: ${closer.placeName} (${closerDist}m)")
+                }
+            }
+        }
+    }
+
+    fun acceptReRoute() {
+        _closerPlaceSuggestion.value = null
+        navigationRepository.requestReRoute()
+        speakIfAvailable("더 가까운 경로로 변경합니다")
+    }
+
+    fun dismissReRouteSuggestion() {
+        _closerPlaceSuggestion.value = null
+    }
+
+    private fun recordVisit() {
+        val name = _destinationName.value ?: return
+        viewModelScope.launch {
+            favoriteRepository.recordVisit(
+                placeName = name,
+                addressName = _destinationAddress.value ?: "",
+                roadAddressName = _destinationAddress.value ?: "",
+                latitude = currentDestLat,
+                longitude = currentDestLng,
+                categoryName = "",
+                phone = ""
+            )
+        }
     }
 
     private fun startTbtPolling() {
