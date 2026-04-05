@@ -50,6 +50,38 @@ javap -p ai/pleos/playground/{package}/{ClassName}.class
 
 navi-data 클래스는 별도 AAR (`navi-data-2.0.0.1.aar`)에 있음.
 
+## Reference Documents
+
+### 프로젝트 내 문서
+| 파일 | 용도 |
+|------|------|
+| `EMERGENCY_RESTROOM_APP_PLAN.md` | 앱 기획서 (컨셉, 시나리오, 기능 명세, 스프린트 계획) |
+| `STATUS.md` | 스프린트별 개발 진행 현황 |
+| `design.pen` | UI 디자인 8개 화면 (Pencil MCP로 열기) |
+| `.omc/plans/sprint-plan.md` | 스프린트 상세 태스크 계획 |
+
+### Pleos 플랫폼 공식 가이드 (프로젝트 외부)
+
+원본: https://document.pleos.ai/docs/connect/guide/
+
+| 경로 | 용도 |
+|------|------|
+| `../developer_guide/INDEX.md` | 개발 가이드 인덱스 |
+| `../developer_guide/environment-setup/` | 에뮬레이터 설정 (AVD, CRN 주입) |
+| `../developer_guide/app-planning/` | 주행 안전 설계, DO 규제, 앱 구조, API 정책 |
+| `../developer_guide/app-developer/` | 오디오 포커스, 내비 앱 개발, 보안, 업데이트 가이드 |
+| `../developer_guide/gleo-ai/` | Gleo AI 스키마 작성, 콜백 스키마, 통합 가이드 |
+| `../developer_guide/sdk-api/` | Vehicle, NaviHelper, STT, TTS, LLM SDK API 레퍼런스 |
+| `../design_guide/INDEX.md` | 디자인 가이드 인덱스 |
+| `../design_guide/getting-started/` | 디스플레이 레이아웃, 윈도우 정책 |
+| `../design_guide/foundation/` | 색상, 타이포, 아이콘, 모션 |
+| `../design_guide/components/` | UI 컴포넌트 (버튼, 리스트, 다이얼로그 등) |
+| `../docs/APP_FEASIBILITY_ANALYSIS.md` | Pleos API 기반 앱 아이디어 구현 가능성 분석 |
+| `../docs/PROGRESS.md` | 전체 프로젝트 진행 현황 |
+
+> **참고**: 경로의 `..`은 `/Users/seungmankim/Documents/source/pleos/` 기준입니다.
+> SDK API 문서와 실제 구현이 다를 수 있으므로 반드시 AAR 디컴파일로 확인하세요.
+
 ## Build Commands
 
 ```bash
