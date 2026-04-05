@@ -153,5 +153,31 @@
                 android:trackTint="@color/bg_card" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/card_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="16dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="TTS 음성 안내"
+                android:textColor="@color/text_primary"
+                android:textSize="@dimen/text_body" />
+
+            <Switch
+                android:id="@+id/switchTts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:thumbTint="@color/accent_purple"
+                android:trackTint="@color/bg_card" />
+        </LinearLayout>
+
     </LinearLayout>
 </ScrollView>
