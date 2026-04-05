@@ -1,6 +1,7 @@
 package com.panicdev.poopilot.data.repository
 
 import ai.pleos.playground.tts.TextToSpeech
+import ai.pleos.playground.tts.listener.EventListener
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
@@ -19,6 +20,21 @@ class TtsRepository @Inject constructor(
         context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
     private var audioFocusRequest: AudioFocusRequest? = null
+
+    private val ttsEventListener = object : EventListener {
+        override fun onDone() {
+            abandonAudioFocus()
+        }
+        override fun onError() {
+            abandonAudioFocus()
+        }
+        override fun onReady() {}
+        override fun onStart() {}
+        override fun onStop() {
+            abandonAudioFocus()
+        }
+        override fun onUpdatedRms(rms: Float) {}
+    }
     @Volatile
     private var isInitialized = false
 
@@ -27,6 +43,7 @@ class TtsRepository @Inject constructor(
         if (isInitialized) return
         try {
             textToSpeech.initialize()
+            textToSpeech.addEventListener(ttsEventListener)
             val audioAttributes = AudioAttributes.Builder()
                 .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                 .setUsage(AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
@@ -80,6 +97,8 @@ class TtsRepository @Inject constructor(
 
     fun release() {
         try {
+            abandonAudioFocus()
+            textToSpeech.removeEventListener(ttsEventListener)
             textToSpeech.release()
             isInitialized = false
             Log.d(TAG, "TTS released")

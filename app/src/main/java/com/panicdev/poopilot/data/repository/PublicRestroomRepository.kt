@@ -44,7 +44,7 @@ class PublicRestroomRepository @Inject constructor(
             Result.success(nearby)
         } catch (e: Exception) {
             Log.e(TAG, "Public restroom search failed", e)
-            Result.success(emptyList())
+            Result.failure(e)
         }
     }
 

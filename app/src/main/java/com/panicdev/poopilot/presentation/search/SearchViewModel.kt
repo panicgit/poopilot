@@ -44,24 +44,25 @@ class SearchViewModel @Inject constructor(
                 val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, radius)
                 _isLoading.value = false
 
-                val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
-                val publicPlaces = publicResult.getOrDefault(emptyList())
-
-                val merged = mergeResults(kakaoPlaces, publicPlaces)
-
-                if (merged.isEmpty()) {
-                    _errorMessage.value = "반경 ${radius}m 내 화장실을 찾을 수 없습니다. 검색 반경을 넓혀보세요."
-                } else {
-                    _searchResults.value = merged
-                    if (merged.size > 1) {
-                        filterWithLlm(merged)
-                    }
-                }
-
                 if (kakaoResult.isFailure && publicResult.isFailure) {
                     _errorMessage.value = "네트워크 오류로 검색에 실패했습니다. 연결 상태를 확인해주세요."
-                } else if (kakaoResult.isFailure) {
-                    _errorMessage.value = "일부 검색 결과만 표시됩니다."
+                    _searchResults.value = emptyList()
+                } else {
+                    val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
+                    val publicPlaces = publicResult.getOrDefault(emptyList())
+                    val merged = mergeResults(kakaoPlaces, publicPlaces)
+
+                    if (merged.isEmpty()) {
+                        _errorMessage.value = "반경 ${radius}m 내 화장실을 찾을 수 없습니다. 검색 반경을 넓혀보세요."
+                    } else {
+                        _searchResults.value = merged
+                        if (kakaoResult.isFailure || publicResult.isFailure) {
+                            _errorMessage.value = "일부 검색 결과만 표시됩니다."
+                        }
+                        if (merged.size > 1) {
+                            filterWithLlm(merged)
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 _isLoading.value = false

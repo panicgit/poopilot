@@ -1,5 +1,6 @@
 package com.panicdev.poopilot.data.repository
 
+import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.KakaoLocalApi
 import com.panicdev.poopilot.data.model.KakaoPlace
 import javax.inject.Inject
@@ -29,8 +30,5 @@ class RestroomRepository @Inject constructor(
         }
     }
 
-    private fun getApiKey(): String {
-        // TODO: Move to BuildConfig or secure storage
-        return ""
-    }
+    private fun getApiKey(): String = BuildConfig.KAKAO_API_KEY
 }
