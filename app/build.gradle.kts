@@ -21,6 +21,8 @@ android {
         // API keys from local.properties (do not commit actual keys)
         buildConfigField("String", "KAKAO_API_KEY", "\"${project.findProperty("KAKAO_API_KEY") ?: ""}\"")
         buildConfigField("String", "PUBLIC_DATA_API_KEY", "\"${project.findProperty("PUBLIC_DATA_API_KEY") ?: ""}\"")
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"${project.findProperty("NAVER_CLIENT_ID") ?: ""}\"")
+        buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${project.findProperty("NAVER_CLIENT_SECRET") ?: ""}\"")
     }
 
     buildTypes {

@@ -2,6 +2,7 @@ package com.panicdev.poopilot.di
 
 import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.KakaoLocalApi
+import com.panicdev.poopilot.data.api.NaverSearchApi
 import com.panicdev.poopilot.data.api.PublicRestroomApi
 import dagger.Module
 import dagger.Provides
@@ -53,5 +54,16 @@ object NetworkModule {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(PublicRestroomApi::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideNaverSearchApi(client: OkHttpClient): NaverSearchApi {
+        return Retrofit.Builder()
+            .baseUrl("https://openapi.naver.com/")
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(NaverSearchApi::class.java)
     }
 }

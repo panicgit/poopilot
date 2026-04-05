@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.model.KakaoPlace
 import com.panicdev.poopilot.data.repository.LlmRepository
+import com.panicdev.poopilot.data.repository.NaverSearchRepository
 import com.panicdev.poopilot.data.repository.PublicRestroomRepository
 import com.panicdev.poopilot.data.repository.RestroomRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,7 +17,8 @@ import javax.inject.Inject
 class SearchViewModel @Inject constructor(
     private val restroomRepository: RestroomRepository,
     private val llmRepository: LlmRepository,
-    private val publicRestroomRepository: PublicRestroomRepository
+    private val publicRestroomRepository: PublicRestroomRepository,
+    private val naverSearchRepository: NaverSearchRepository
 ) : ViewModel() {
 
     private val _searchResults = MutableLiveData<List<KakaoPlace>>()
@@ -42,21 +44,23 @@ class SearchViewModel @Inject constructor(
             try {
                 val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, radius)
                 val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, radius)
+                val naverResult = naverSearchRepository.searchNearbyRestrooms(latitude, longitude)
                 _isLoading.value = false
 
-                if (kakaoResult.isFailure && publicResult.isFailure) {
+                if (kakaoResult.isFailure && publicResult.isFailure && naverResult.isFailure) {
                     _errorMessage.value = "네트워크 오류로 검색에 실패했습니다. 연결 상태를 확인해주세요."
                     _searchResults.value = emptyList()
                 } else {
                     val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
                     val publicPlaces = publicResult.getOrDefault(emptyList())
-                    val merged = mergeResults(kakaoPlaces, publicPlaces)
+                    val naverPlaces = naverResult.getOrDefault(emptyList())
+                    val merged = mergeResults(kakaoPlaces, publicPlaces, naverPlaces)
 
                     if (merged.isEmpty()) {
                         _errorMessage.value = "반경 ${radius}m 내 화장실을 찾을 수 없습니다. 검색 반경을 넓혀보세요."
                     } else {
                         _searchResults.value = merged
-                        if (kakaoResult.isFailure || publicResult.isFailure) {
+                        if (kakaoResult.isFailure || publicResult.isFailure || naverResult.isFailure) {
                             _errorMessage.value = "일부 검색 결과만 표시됩니다."
                         }
                         if (merged.size > 1) {
@@ -74,12 +78,14 @@ class SearchViewModel @Inject constructor(
 
     private fun mergeResults(
         kakaoPlaces: List<KakaoPlace>,
-        publicPlaces: List<KakaoPlace>
+        publicPlaces: List<KakaoPlace>,
+        naverPlaces: List<KakaoPlace>
     ): List<KakaoPlace> {
-        val kakaoNames = kakaoPlaces.map { it.placeName }.toSet()
-        val uniquePublic = publicPlaces.filter { it.placeName !in kakaoNames }
-        return (kakaoPlaces + uniquePublic)
-            .sortedBy { it.distance.toIntOrNull() ?: Int.MAX_VALUE }
+        val seenNames = kakaoPlaces.map { it.placeName }.toMutableSet()
+        val uniquePublic = publicPlaces.filter { seenNames.add(it.placeName) }
+        val uniqueNaver = naverPlaces.filter { seenNames.add(it.placeName) }
+        return (kakaoPlaces + uniquePublic + uniqueNaver)
+            .sortedWith(compareBy(nullsLast()) { it.distance.toIntOrNull() })
     }
 
     private fun filterWithLlm(places: List<KakaoPlace>) {
