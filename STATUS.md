@@ -2,7 +2,7 @@
 
 > 최종 업데이트: 2026-04-05
 > GitHub: https://github.com/panicgit/poopilot
-> 총 커밋: 27개
+> 총 커밋: 35개
 
 ---
 
@@ -66,13 +66,17 @@
 
 ---
 
-## 다음 Sprint
+### Sprint 5: 스마트 기능 ✅
+- [x] LLM 초기화 모듈 (LlmRepository + LlmModule — generateContent with coroutine)
+- [x] LLM 검색 결과 필터링 (SearchViewModel — 최적 화장실 자동 추천)
+- [x] 단골 화장실 DB (Room — FavoriteRestroom, DAO, FavoriteRepository)
+- [x] 단골 화장실 UI (MainFragment — RecyclerView 즐겨찾기/최근, 바로 안내)
+- [x] 자동 재탐색 (NavigationViewModel — 1분/2분 폴링, requestReRoute, 도착 시 방문 기록)
+- [x] 공공데이터포털 API (PublicRestroomApi — Haversine 거리 계산, 카카오 결과와 병합)
 
-### Sprint 5: 스마트 기능 (3일)
-- [ ] LLM 검색 결과 필터링
-- [ ] 단골 화장실 DB (Room)
-- [ ] 자동 재탐색
-- [ ] 공공데이터포털 API
+---
+
+## 다음 Sprint
 
 ### Sprint 6: 고도화 + 품질 (3일)
 - [ ] DO 선언, 오디오 포커스, 반응형 완성
@@ -92,7 +96,9 @@ com.panicdev.poopilot/
 │   ├── NaviHelperModule.kt     NaviHelper SDK singleton
 │   ├── NetworkModule.kt        Retrofit + KakaoLocalApi
 │   ├── TtsModule.kt            TextToSpeech SDK singleton (HYBRID)
-│   └── SttModule.kt            SpeechToText SDK singleton (HYBRID)
+│   ├── SttModule.kt            SpeechToText SDK singleton (HYBRID)
+│   ├── LlmModule.kt            LLM SDK singleton
+│   └── DatabaseModule.kt       Room DB + DAO
 ├── data/
 │   ├── api/KakaoLocalApi.kt    카카오 로컬 검색 API
 │   ├── model/KakaoSearchResponse.kt  응답 모델
@@ -103,7 +109,10 @@ com.panicdev.poopilot/
 │       ├── DoorRepository.kt         도어 언락 (Vehicle Door API)
 │       ├── TtsRepository.kt          음성 합성 (TextToSpeech SDK)
 │       ├── SttRepository.kt          음성 인식 (SpeechToText SDK)
-│       └── SettingsRepository.kt     설정 저장/로드 (SharedPreferences)
+│       ├── SettingsRepository.kt     설정 저장/로드 (SharedPreferences)
+│       ├── LlmRepository.kt          LLM 콘텐츠 생성
+│       ├── FavoriteRepository.kt     단골 화장실 CRUD (Room)
+│       └── PublicRestroomRepository.kt 공공데이터포털 API
 ├── service/
 │   └── VoiceActivationService.kt  연속 키워드 감지 서비스
 ├── receiver/
