@@ -52,6 +52,13 @@ class MainFragment : Fragment() {
             }
         }
 
+        viewModel.voiceActivated.observe(viewLifecycleOwner) { activated ->
+            if (activated) {
+                viewModel.onVoiceActivatedConsumed()
+                Toast.makeText(requireContext(), "음성 명령 감지! 급똥모드 활성화", Toast.LENGTH_SHORT).show()
+            }
+        }
+
         viewModel.appState.observe(viewLifecycleOwner) { state ->
             when (state) {
                 AppState.SEARCHING -> {

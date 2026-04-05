@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.repository.LocationRepository
+import com.panicdev.poopilot.data.service.VoiceActivationService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.TimeoutCancellationException
@@ -18,7 +19,8 @@ enum class AppState {
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val locationRepository: LocationRepository
+    private val locationRepository: LocationRepository,
+    private val voiceActivationService: VoiceActivationService
 ) : ViewModel() {
 
     private val _appState = MutableLiveData(AppState.STANDBY)
@@ -36,13 +38,40 @@ class MainViewModel @Inject constructor(
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
+    private val _voiceActivated = MutableLiveData(false)
+    val voiceActivated: LiveData<Boolean> = _voiceActivated
+
     init {
         locationRepository.initialize()
+        startVoiceActivation()
     }
 
     override fun onCleared() {
         super.onCleared()
+        voiceActivationService.stop()
         locationRepository.release()
+    }
+
+    private fun startVoiceActivation() {
+        voiceActivationService.start(viewModelScope)
+        viewModelScope.launch {
+            voiceActivationService.activationEvents.collect { keyword ->
+                if (_appState.value == AppState.STANDBY) {
+                    _voiceActivated.value = true
+                    activateEmergencyMode()
+                }
+            }
+        }
+    }
+
+    fun onVoiceActivatedConsumed() {
+        _voiceActivated.value = false
+    }
+
+    fun restartVoiceActivation() {
+        if (!voiceActivationService.isRunning()) {
+            voiceActivationService.start(viewModelScope)
+        }
     }
 
     fun activateEmergencyMode() {
@@ -84,5 +113,6 @@ class MainViewModel @Inject constructor(
         _appState.value = AppState.STANDBY
         _navigateToSearch.value = false
         _errorMessage.value = null
+        restartVoiceActivation()
     }
 }
