@@ -2,7 +2,7 @@
 
 > 최종 업데이트: 2026-04-05
 > GitHub: https://github.com/panicgit/poopilot
-> 총 커밋: 35개
+> 총 커밋: 43개
 
 ---
 
@@ -76,12 +76,18 @@
 
 ---
 
-## 다음 Sprint
+### Sprint 6: 고도화 + 품질 ✅
+- [x] DO 선언 (distractionOptimized, MOBILITY_SERVICES, DrivingModeHelper)
+- [x] 오디오 포커스 (NAVIGATION guidance, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+- [x] 에러 핸들링 강화 (NetworkUtils, 사용자 친화적 에러 메시지)
+- [x] 앱 보안 (BuildConfig API 키, HTTPS 강제, ProGuard 활성화)
+- [x] 앱 업데이트 시퀀스 (AppUpdateChecker, 마켓 리다이렉트)
 
-### Sprint 6: 고도화 + 품질 (3일)
-- [ ] DO 선언, 오디오 포커스, 반응형 완성
-- [ ] 에러 핸들링, 앱 아이콘, 보안, 업데이트 시퀀스
-- [ ] 남은 코드 리뷰 이슈 (MEDIUM/LOW)
+---
+
+## 프로젝트 완료
+
+모든 Sprint (0~6) 완료. Pleos Connect 앱 심사 기준(주행 안전, 오디오 포커스, 보안) 충족.
 
 ---
 
