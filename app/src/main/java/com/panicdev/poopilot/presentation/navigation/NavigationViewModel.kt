@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.repository.DoorRepository
 import com.panicdev.poopilot.data.repository.NavigationEvent
 import com.panicdev.poopilot.data.repository.NavigationRepository
+import com.panicdev.poopilot.data.repository.TtsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,7 +15,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
     private val navigationRepository: NavigationRepository,
-    private val doorRepository: DoorRepository
+    private val doorRepository: DoorRepository,
+    private val ttsRepository: TtsRepository
 ) : ViewModel() {
 
     private val _remainingDistance = MutableLiveData("--")
@@ -36,12 +38,14 @@ class NavigationViewModel @Inject constructor(
     val ttsMessage: LiveData<String?> = _ttsMessage
 
     init {
+        ttsRepository.initialize()
         navigationRepository.registerListener()
         observeNavigationEvents()
     }
 
     override fun onCleared() {
         super.onCleared()
+        ttsRepository.stop()
         navigationRepository.unregisterListener()
     }
 
@@ -52,6 +56,8 @@ class NavigationViewModel @Inject constructor(
                     is NavigationEvent.RouteStarted -> {
                         _remainingDistance.value = formatDistance(event.info.distance)
                         _remainingTime.value = formatTime(event.info.duration)
+                        val timeText = formatTime(event.info.duration)
+                        speakIfAvailable("${_destinationName.value}까지 $timeText 소요됩니다")
                     }
                     is NavigationEvent.TBTUpdated -> {
                         _remainingDistance.value = formatDistance(event.info.remainDistance)
@@ -60,7 +66,9 @@ class NavigationViewModel @Inject constructor(
                     is NavigationEvent.DestinationArrived -> {
                         _hasArrived.value = true
                         doorRepository.unlockDriverDoor()
-                        _ttsMessage.value = "도착했습니다! 문이 열��습니다!"
+                        val message = "도착했습니다! 문이 열렸습니다!"
+                        _ttsMessage.value = message
+                        speakIfAvailable(message)
                     }
                     is NavigationEvent.RouteCancelled -> {
                         // handled by fragment
@@ -77,7 +85,9 @@ class NavigationViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 navigationRepository.startNavigation(lat, lng, name, address)
-                _ttsMessage.value = "${name}까지 안내를 시작합니다"
+                val message = "${name}까지 안내를 시작합니다"
+                _ttsMessage.value = message
+                speakIfAvailable(message)
             } catch (e: Exception) {
                 _ttsMessage.value = "경로 설정 실패: ${e.message}"
             }
@@ -94,6 +104,10 @@ class NavigationViewModel @Inject constructor(
 
     fun onArrivalConsumed() {
         _hasArrived.value = false
+    }
+
+    private fun speakIfAvailable(text: String) {
+        ttsRepository.speak(text)
     }
 
     private fun formatDistance(meters: Int): String {
