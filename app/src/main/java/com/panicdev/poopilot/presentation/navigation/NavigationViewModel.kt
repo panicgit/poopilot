@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.panicdev.poopilot.data.repository.DoorRepository
 import com.panicdev.poopilot.data.repository.NavigationEvent
 import com.panicdev.poopilot.data.repository.NavigationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -12,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NavigationViewModel @Inject constructor(
-    private val navigationRepository: NavigationRepository
+    private val navigationRepository: NavigationRepository,
+    private val doorRepository: DoorRepository
 ) : ViewModel() {
 
     private val _remainingDistance = MutableLiveData("--")
@@ -57,7 +59,8 @@ class NavigationViewModel @Inject constructor(
                     }
                     is NavigationEvent.DestinationArrived -> {
                         _hasArrived.value = true
-                        _ttsMessage.value = "도착했습니다!"
+                        doorRepository.unlockDriverDoor()
+                        _ttsMessage.value = "도착했습니다! 문이 열��습니다!"
                     }
                     is NavigationEvent.RouteCancelled -> {
                         // handled by fragment
