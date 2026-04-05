@@ -91,7 +91,6 @@ class NavigationFragment : Fragment() {
             if (arrived) {
                 navViewModel.onArrivalConsumed()
                 Toast.makeText(requireContext(), "도착했습니다!", Toast.LENGTH_LONG).show()
-                // TODO: Sprint 3에서 도어 언락 + TTS
                 mainViewModel.resetToStandby()
                 findNavController().navigate(R.id.action_navigation_to_main)
             }
@@ -100,7 +99,6 @@ class NavigationFragment : Fragment() {
         navViewModel.ttsMessage.observe(viewLifecycleOwner) { message ->
             if (message != null) {
                 navViewModel.onTtsMessageConsumed()
-                // TODO: Sprint 3에서 TTS로 음성 출력
                 Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
             }
         }

@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Switch
-import android.widget.TextView
+import android.widget.CompoundButton
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -19,6 +19,16 @@ class SettingsFragment : Fragment() {
     private var _binding: FragmentSettingsBinding? = null
     private val binding get() = _binding!!
     private val viewModel: SettingsViewModel by viewModels()
+
+    private val doorUnlockListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        viewModel.setDoorUnlockEnabled(isChecked)
+    }
+    private val voiceListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        viewModel.setVoiceCommandEnabled(isChecked)
+    }
+    private val ttsListener = CompoundButton.OnCheckedChangeListener { _, isChecked ->
+        viewModel.setTtsEnabled(isChecked)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -48,15 +58,9 @@ class SettingsFragment : Fragment() {
     }
 
     private fun setupSwitches() {
-        binding.switchDoorUnlock.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setDoorUnlockEnabled(isChecked)
-        }
-        binding.switchVoice.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setVoiceCommandEnabled(isChecked)
-        }
-        binding.switchTts?.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setTtsEnabled(isChecked)
-        }
+        binding.switchDoorUnlock.setOnCheckedChangeListener(doorUnlockListener)
+        binding.switchVoice.setOnCheckedChangeListener(voiceListener)
+        binding.switchTts?.setOnCheckedChangeListener(ttsListener)
     }
 
     private fun observeViewModel() {
@@ -64,14 +68,24 @@ class SettingsFragment : Fragment() {
             updateRadiusUI(radius)
         }
         viewModel.doorUnlockEnabled.observe(viewLifecycleOwner) { enabled ->
-            binding.switchDoorUnlock.isChecked = enabled
+            setSwitchCheckedSilently(binding.switchDoorUnlock, enabled, doorUnlockListener)
         }
         viewModel.voiceCommandEnabled.observe(viewLifecycleOwner) { enabled ->
-            binding.switchVoice.isChecked = enabled
+            setSwitchCheckedSilently(binding.switchVoice, enabled, voiceListener)
         }
         viewModel.ttsEnabled.observe(viewLifecycleOwner) { enabled ->
-            binding.switchTts?.isChecked = enabled
+            binding.switchTts?.let { setSwitchCheckedSilently(it, enabled, ttsListener) }
         }
+    }
+
+    private fun setSwitchCheckedSilently(
+        switch: CompoundButton,
+        checked: Boolean,
+        listener: CompoundButton.OnCheckedChangeListener
+    ) {
+        switch.setOnCheckedChangeListener(null)
+        switch.isChecked = checked
+        switch.setOnCheckedChangeListener(listener)
     }
 
     private fun updateRadiusUI(radius: Int) {
@@ -83,11 +97,11 @@ class SettingsFragment : Fragment() {
         buttons.forEach { (btn, value) ->
             if (value == radius) {
                 btn.setBackgroundResource(R.drawable.button_selected_bg)
-                btn.setTextColor(resources.getColor(R.color.text_primary, null))
+                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_primary))
                 btn.setTypeface(null, android.graphics.Typeface.BOLD)
             } else {
                 btn.setBackgroundResource(R.drawable.card_bg)
-                btn.setTextColor(resources.getColor(R.color.text_secondary, null))
+                btn.setTextColor(ContextCompat.getColor(requireContext(), R.color.text_secondary))
                 btn.setTypeface(null, android.graphics.Typeface.NORMAL)
             }
         }

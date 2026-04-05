@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.repository.DoorRepository
 import com.panicdev.poopilot.data.repository.NavigationEvent
 import com.panicdev.poopilot.data.repository.NavigationRepository
+import com.panicdev.poopilot.data.repository.SettingsRepository
 import com.panicdev.poopilot.data.repository.TtsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -18,7 +19,8 @@ import javax.inject.Inject
 class NavigationViewModel @Inject constructor(
     private val navigationRepository: NavigationRepository,
     private val doorRepository: DoorRepository,
-    private val ttsRepository: TtsRepository
+    private val ttsRepository: TtsRepository,
+    private val settingsRepository: SettingsRepository
 ) : ViewModel() {
 
     private val _remainingDistance = MutableLiveData("--")
@@ -81,10 +83,16 @@ class NavigationViewModel @Inject constructor(
                         _hasArrived.value = true
                         _isNavigating.value = false
                         stopTbtPolling()
-                        doorRepository.unlockDriverDoor()
-                        val message = "도착했습니다! 문이 열렸습니다!"
-                        _ttsMessage.value = message
-                        speakIfAvailable(message)
+                        if (settingsRepository.doorUnlockEnabled) {
+                            doorRepository.unlockDriverDoor()
+                            val message = "도착했습니다! 문이 열렸습니다!"
+                            _ttsMessage.value = message
+                            speakIfAvailable(message)
+                        } else {
+                            val message = "도착했습니다!"
+                            _ttsMessage.value = message
+                            speakIfAvailable(message)
+                        }
                     }
                     is NavigationEvent.RouteCancelled -> {
                         // handled by fragment
@@ -140,7 +148,9 @@ class NavigationViewModel @Inject constructor(
     }
 
     private fun speakIfAvailable(text: String) {
-        ttsRepository.speak(text)
+        if (settingsRepository.ttsEnabled) {
+            ttsRepository.speak(text)
+        }
     }
 
     private fun formatDistance(meters: Int): String {

@@ -10,6 +10,7 @@ import javax.inject.Singleton
 class TtsRepository @Inject constructor(
     private val textToSpeech: TextToSpeech
 ) {
+    @Volatile
     private var isInitialized = false
 
     fun initialize() {

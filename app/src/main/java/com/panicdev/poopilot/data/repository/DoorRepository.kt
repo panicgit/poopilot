@@ -13,7 +13,7 @@ class DoorRepository @Inject constructor(
 ) {
     private val door by lazy { vehicle.getDoor() }
 
-    fun unlockDriverDoor(onComplete: () -> Unit = {}, onFailed: (Exception) -> Unit = {}) {
+    fun unlockDriverDoor(onFailed: (Exception) -> Unit = {}) {
         try {
             door.setDoorLock(
                 area = DoorArea(DoorValue.ROW_1_LEFT),
@@ -23,14 +23,13 @@ class DoorRepository @Inject constructor(
                     onFailed(e)
                 }
             )
-            onComplete()
         } catch (e: Exception) {
             Log.e(TAG, "Door unlock error", e)
             onFailed(e)
         }
     }
 
-    fun unlockAllDoors(onComplete: () -> Unit = {}, onFailed: (Exception) -> Unit = {}) {
+    fun unlockAllDoors(onFailed: (Exception) -> Unit = {}) {
         val areas = listOf(
             DoorValue.ROW_1_LEFT,
             DoorValue.ROW_1_RIGHT,
@@ -44,10 +43,10 @@ class DoorRepository @Inject constructor(
                     locked = false,
                     onFailed = { e ->
                         Log.e(TAG, "Door unlock failed for $doorValue", e)
+                        onFailed(e)
                     }
                 )
             }
-            onComplete()
         } catch (e: Exception) {
             Log.e(TAG, "Unlock all doors error", e)
             onFailed(e)
