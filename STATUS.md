@@ -2,7 +2,7 @@
 
 > 최종 업데이트: 2026-04-05
 > GitHub: https://github.com/panicgit/poopilot
-> 총 커밋: 20개
+> 총 커밋: 27개
 
 ---
 
@@ -57,13 +57,16 @@
 
 ---
 
-## 다음 Sprint
+### Sprint 4: STT 음성 활성화 ✅
+- [x] STT 초기화 모듈 (SttRepository + SttModule — HYBRID mode, ResultListener)
+- [x] "급똥모드!" 키워드 인식 (VoiceActivationService — 연속 감지 + 자동 재시작)
+- [x] 음성 → 전체 플로우 자동 실행 (MainViewModel — 키워드 → activateEmergencyMode)
+- [x] Gleo AI Schema (assets/schema.json — ACTIVATE/CANCEL 함수 정의)
+- [x] Gleo AI Callback (GleoAiReceiver + GleoCommandBus — Intent 수신 → 급똥모드)
 
-### Sprint 4: STT 음성 활성화 (3일)
-- [ ] STT 초기화 모듈
-- [ ] "급똥모드!" 키워드 인식
-- [ ] 음성 → 전체 플로우 자동 실행
-- [ ] Gleo AI Schema (assets/schema.json)
+---
+
+## 다음 Sprint
 
 ### Sprint 5: 스마트 기능 (3일)
 - [ ] LLM 검색 결과 필터링
@@ -88,7 +91,8 @@ com.panicdev.poopilot/
 │   ├── VehicleModule.kt        Vehicle SDK singleton
 │   ├── NaviHelperModule.kt     NaviHelper SDK singleton
 │   ├── NetworkModule.kt        Retrofit + KakaoLocalApi
-│   └── TtsModule.kt            TextToSpeech SDK singleton (HYBRID)
+│   ├── TtsModule.kt            TextToSpeech SDK singleton (HYBRID)
+│   └── SttModule.kt            SpeechToText SDK singleton (HYBRID)
 ├── data/
 │   ├── api/KakaoLocalApi.kt    카카오 로컬 검색 API
 │   ├── model/KakaoSearchResponse.kt  응답 모델
@@ -97,7 +101,13 @@ com.panicdev.poopilot/
 │       ├── RestroomRepository.kt     화장실 검색 (Result 반환)
 │       ├── NavigationRepository.kt   경로 관리 (SharedFlow 이벤트)
 │       ├── DoorRepository.kt         도어 언락 (Vehicle Door API)
-│       └── TtsRepository.kt          음성 합성 (TextToSpeech SDK)
+│       ├── TtsRepository.kt          음성 합성 (TextToSpeech SDK)
+│       ├── SttRepository.kt          음성 인식 (SpeechToText SDK)
+│       └── SettingsRepository.kt     설정 저장/로드 (SharedPreferences)
+├── service/
+│   └── VoiceActivationService.kt  연속 키워드 감지 서비스
+├── receiver/
+│   └── GleoAiReceiver.kt         Gleo AI Intent 수신
 ├── presentation/
 │   ├── main/
 │   │   ├── MainFragment.kt          급똥모드 버튼 + 상태
