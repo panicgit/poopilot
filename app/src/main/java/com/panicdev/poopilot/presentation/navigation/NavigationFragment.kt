@@ -80,6 +80,13 @@ class NavigationFragment : Fragment() {
             binding.tvDistValue.text = "$dist 남음"
         }
 
+        navViewModel.tbtDescription.observe(viewLifecycleOwner) { desc ->
+            binding.tvTbtDesc?.let { tv ->
+                tv.text = desc
+                tv.visibility = if (desc.isNullOrBlank()) View.GONE else View.VISIBLE
+            }
+        }
+
         navViewModel.hasArrived.observe(viewLifecycleOwner) { arrived ->
             if (arrived) {
                 navViewModel.onArrivalConsumed()

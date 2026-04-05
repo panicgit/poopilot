@@ -9,6 +9,8 @@ import com.panicdev.poopilot.data.repository.NavigationEvent
 import com.panicdev.poopilot.data.repository.NavigationRepository
 import com.panicdev.poopilot.data.repository.TtsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,6 +39,14 @@ class NavigationViewModel @Inject constructor(
     private val _ttsMessage = MutableLiveData<String?>()
     val ttsMessage: LiveData<String?> = _ttsMessage
 
+    private val _tbtDescription = MutableLiveData("")
+    val tbtDescription: LiveData<String> = _tbtDescription
+
+    private val _isNavigating = MutableLiveData(false)
+    val isNavigating: LiveData<Boolean> = _isNavigating
+
+    private var tbtPollingJob: Job? = null
+
     init {
         ttsRepository.initialize()
         navigationRepository.registerListener()
@@ -45,6 +55,7 @@ class NavigationViewModel @Inject constructor(
 
     override fun onCleared() {
         super.onCleared()
+        stopTbtPolling()
         ttsRepository.stop()
         navigationRepository.unregisterListener()
     }
@@ -56,15 +67,20 @@ class NavigationViewModel @Inject constructor(
                     is NavigationEvent.RouteStarted -> {
                         _remainingDistance.value = formatDistance(event.info.distance)
                         _remainingTime.value = formatTime(event.info.duration)
+                        _isNavigating.value = true
+                        startTbtPolling()
                         val timeText = formatTime(event.info.duration)
                         speakIfAvailable("${_destinationName.value}까지 $timeText 소요됩니다")
                     }
                     is NavigationEvent.TBTUpdated -> {
                         _remainingDistance.value = formatDistance(event.info.remainDistance)
                         _remainingTime.value = formatTime(event.info.remainTime)
+                        _tbtDescription.value = event.info.description ?: ""
                     }
                     is NavigationEvent.DestinationArrived -> {
                         _hasArrived.value = true
+                        _isNavigating.value = false
+                        stopTbtPolling()
                         doorRepository.unlockDriverDoor()
                         val message = "도착했습니다! 문이 열렸습니다!"
                         _ttsMessage.value = message
@@ -95,7 +111,24 @@ class NavigationViewModel @Inject constructor(
     }
 
     fun cancelNavigation() {
+        stopTbtPolling()
+        _isNavigating.value = false
         navigationRepository.cancelRoute()
+    }
+
+    private fun startTbtPolling() {
+        tbtPollingJob?.cancel()
+        tbtPollingJob = viewModelScope.launch {
+            while (true) {
+                delay(3_000L)
+                navigationRepository.getTBTInfo()
+            }
+        }
+    }
+
+    private fun stopTbtPolling() {
+        tbtPollingJob?.cancel()
+        tbtPollingJob = null
     }
 
     fun onTtsMessageConsumed() {
