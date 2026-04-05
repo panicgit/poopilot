@@ -1,8 +1,12 @@
 package com.panicdev.poopilot
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.panicdev.poopilot.data.receiver.GleoAiReceiver
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -12,7 +16,24 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        requestLocationPermission()
         handleGleoIntent(intent)
+    }
+
+    private fun requestLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                LOCATION_PERMISSION_REQUEST
+            )
+        }
+    }
+
+    companion object {
+        private const val LOCATION_PERMISSION_REQUEST = 1001
     }
 
     override fun onNewIntent(intent: Intent) {
