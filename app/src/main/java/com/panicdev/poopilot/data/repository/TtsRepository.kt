@@ -13,6 +13,7 @@ class TtsRepository @Inject constructor(
     @Volatile
     private var isInitialized = false
 
+    @Synchronized
     fun initialize() {
         if (isInitialized) return
         try {
