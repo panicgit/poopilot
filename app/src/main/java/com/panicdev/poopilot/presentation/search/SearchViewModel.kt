@@ -39,25 +39,34 @@ class SearchViewModel @Inject constructor(
         _errorMessage.value = null
 
         viewModelScope.launch {
-            val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, radius)
-            val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, radius)
-            _isLoading.value = false
+            try {
+                val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, radius)
+                val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, radius)
+                _isLoading.value = false
 
-            val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
-            val publicPlaces = publicResult.getOrDefault(emptyList())
+                val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
+                val publicPlaces = publicResult.getOrDefault(emptyList())
 
-            val merged = mergeResults(kakaoPlaces, publicPlaces)
+                val merged = mergeResults(kakaoPlaces, publicPlaces)
 
-            if (merged.isEmpty()) {
-                _errorMessage.value = "주변에 화장실을 찾을 수 없습니다"
-            }
-            _searchResults.value = merged
-            if (merged.size > 1) {
-                filterWithLlm(merged)
-            }
+                if (merged.isEmpty()) {
+                    _errorMessage.value = "반경 ${radius}m 내 화장실을 찾을 수 없습니다. 검색 반경을 넓혀보세요."
+                } else {
+                    _searchResults.value = merged
+                    if (merged.size > 1) {
+                        filterWithLlm(merged)
+                    }
+                }
 
-            if (kakaoResult.isFailure && publicResult.isFailure) {
-                _errorMessage.value = "검색 실패: ${kakaoResult.exceptionOrNull()?.message}"
+                if (kakaoResult.isFailure && publicResult.isFailure) {
+                    _errorMessage.value = "네트워크 오류로 검색에 실패했습니다. 연결 상태를 확인해주세요."
+                } else if (kakaoResult.isFailure) {
+                    _errorMessage.value = "일부 검색 결과만 표시됩니다."
+                }
+            } catch (e: Exception) {
+                _isLoading.value = false
+                _errorMessage.value = "검색 중 오류가 발생했습니다: ${e.localizedMessage}"
+                _searchResults.value = emptyList()
             }
         }
     }
