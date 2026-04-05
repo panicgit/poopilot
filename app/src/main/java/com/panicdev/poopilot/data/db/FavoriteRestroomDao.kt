@@ -19,7 +19,7 @@ interface FavoriteRestroomDao {
     @Query("SELECT * FROM favorite_restrooms WHERE placeName = :name AND latitude = :lat AND longitude = :lng LIMIT 1")
     suspend fun findByLocation(name: String, lat: Double, lng: Double): FavoriteRestroom?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(restroom: FavoriteRestroom): Long
 
     @Update

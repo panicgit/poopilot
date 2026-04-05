@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.panicdev.poopilot.data.repository.DoorRepository
 import com.panicdev.poopilot.data.repository.FavoriteRepository
+import com.panicdev.poopilot.data.repository.LocationRepository
 import com.panicdev.poopilot.data.repository.NavigationEvent
 import com.panicdev.poopilot.data.repository.NavigationRepository
 import com.panicdev.poopilot.data.repository.RestroomRepository
@@ -24,7 +25,8 @@ class NavigationViewModel @Inject constructor(
     private val ttsRepository: TtsRepository,
     private val settingsRepository: SettingsRepository,
     private val restroomRepository: RestroomRepository,
-    private val favoriteRepository: FavoriteRepository
+    private val favoriteRepository: FavoriteRepository,
+    private val locationRepository: LocationRepository
 ) : ViewModel() {
 
     private val _remainingDistance = MutableLiveData("--")
@@ -83,7 +85,7 @@ class NavigationViewModel @Inject constructor(
                         _remainingTime.value = formatTime(event.info.duration)
                         _isNavigating.value = true
                         startTbtPolling()
-                        startReSearch(currentDestLat, currentDestLng)
+                        startReSearch()
                         val timeText = formatTime(event.info.duration)
                         speakIfAvailable("${_destinationName.value}까지 $timeText 소요됩니다")
                     }
@@ -142,12 +144,19 @@ class NavigationViewModel @Inject constructor(
         navigationRepository.cancelRoute()
     }
 
-    private fun startReSearch(lat: Double, lng: Double) {
+    private fun startReSearch() {
         reSearchJob?.cancel()
         reSearchJob = viewModelScope.launch {
             delay(60_000L) // 1분 후 첫 재탐색
             while (_isNavigating.value == true) {
-                checkForCloserRestroom(lat, lng)
+                try {
+                    val currentLoc = locationRepository.getCurrentLocation()
+                    if (currentLoc != null) {
+                        checkForCloserRestroom(currentLoc.latitude, currentLoc.longitude)
+                    }
+                } catch (e: Exception) {
+                    // 위치 획득 실패 시 건너뜀
+                }
                 delay(120_000L) // 이후 2분 간격
             }
         }
@@ -166,7 +175,9 @@ class NavigationViewModel @Inject constructor(
                 val closerLat = closer.y.toDoubleOrNull() ?: return@onSuccess
                 val closerLng = closer.x.toDoubleOrNull() ?: return@onSuccess
                 val closerDist = closer.distance.toIntOrNull() ?: return@onSuccess
-                if (closerLat != currentDestLat && closerLng != currentDestLng && closerDist > 0) {
+                val isDifferentPlace = Math.abs(closerLat - currentDestLat) > 0.0005 ||
+                    Math.abs(closerLng - currentDestLng) > 0.0005 // ~50m threshold
+                if (isDifferentPlace && closerDist > 0) {
                     _closerPlaceSuggestion.postValue("더 가까운 화장실: ${closer.placeName} (${closerDist}m)")
                 }
             }

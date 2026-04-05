@@ -23,7 +23,8 @@ object DatabaseModule {
         context,
         PoopilotDatabase::class.java,
         "poopilot_db"
-    ).build()
+    ).fallbackToDestructiveMigration()
+    .build()
 
     @Provides
     @Singleton

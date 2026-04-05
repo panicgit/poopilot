@@ -20,6 +20,10 @@ class PublicRestroomRepository @Inject constructor(
         longitude: Double,
         radius: Int = 1000
     ): Result<List<KakaoPlace>> {
+        if (PUBLIC_API_KEY.isBlank()) {
+            Log.w(TAG, "PUBLIC_API_KEY not configured, skipping public restroom search")
+            return Result.success(emptyList())
+        }
         return try {
             val response = publicRestroomApi.searchPublicRestrooms(
                 serviceKey = PUBLIC_API_KEY
