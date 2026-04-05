@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.panicdev.poopilot"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.panicdev.poopilot"
