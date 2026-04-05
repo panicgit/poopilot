@@ -1,8 +1,8 @@
 # Poopilot — 개발 진행 현황
 
-> 최종 업데이트: 2026-04-04
+> 최종 업데이트: 2026-04-05
 > GitHub: https://github.com/panicgit/poopilot
-> 총 커밋: 14개
+> 총 커밋: 20개
 
 ---
 
@@ -47,15 +47,17 @@
 
 ---
 
-## 다음 Sprint
+### Sprint 3: 도어 언락 + TTS 안내 ✅
+- [x] Door 제어 모듈 (DoorRepository — unlockDriverDoor/unlockAllDoors)
+- [x] 도착 시 자동 언락 (DestinationArrived → DoorRepository.unlockDriverDoor)
+- [x] TTS 초기화 모듈 (TtsRepository + TtsModule — HYBRID mode)
+- [x] TTS 음성 안내 (경로 시작, 소요시간 안내, 도착+도어 언락 안내)
+- [x] TBT 기반 실시간 카운트다운 (3초 폴링, TBT description 표시)
+- [x] 설정 화면 기능 (SettingsViewModel + SharedPreferences — 반경/도어/음성/TTS)
 
-### Sprint 3: 도어 언락 + TTS 안내 (3일)
-- [ ] Door 제어 모듈 (controlDoorLock UNLOCK)
-- [ ] 도착 시 자동 언락 (onDestinationArrived → Door)
-- [ ] TTS 초기화 모듈 (TextToSpeech Hilt)
-- [ ] TTS 음성 안내 (검색 완료, 도착 알림)
-- [ ] TBT 기반 실시간 카운트다운
-- [ ] 설정 화면 기능 (SharedPreferences 저장/로드)
+---
+
+## 다음 Sprint
 
 ### Sprint 4: STT 음성 활성화 (3일)
 - [ ] STT 초기화 모듈
@@ -85,14 +87,17 @@ com.panicdev.poopilot/
 ├── di/
 │   ├── VehicleModule.kt        Vehicle SDK singleton
 │   ├── NaviHelperModule.kt     NaviHelper SDK singleton
-│   └── NetworkModule.kt        Retrofit + KakaoLocalApi
+│   ├── NetworkModule.kt        Retrofit + KakaoLocalApi
+│   └── TtsModule.kt            TextToSpeech SDK singleton (HYBRID)
 ├── data/
 │   ├── api/KakaoLocalApi.kt    카카오 로컬 검색 API
 │   ├── model/KakaoSearchResponse.kt  응답 모델
 │   └── repository/
 │       ├── LocationRepository.kt     위치 획득 (coroutine + timeout)
 │       ├── RestroomRepository.kt     화장실 검색 (Result 반환)
-│       └── NavigationRepository.kt   경로 관리 (SharedFlow 이벤트)
+│       ├── NavigationRepository.kt   경로 관리 (SharedFlow 이벤트)
+│       ├── DoorRepository.kt         도어 언락 (Vehicle Door API)
+│       └── TtsRepository.kt          음성 합성 (TextToSpeech SDK)
 ├── presentation/
 │   ├── main/
 │   │   ├── MainFragment.kt          급똥모드 버튼 + 상태
@@ -105,7 +110,8 @@ com.panicdev.poopilot/
 │   │   ├── NavigationFragment.kt    안내 화면
 │   │   └── NavigationViewModel.kt   카운트다운, 도착 감지
 │   └── settings/
-│       └── SettingsFragment.kt      설정 (TODO: SharedPreferences)
+│       ├── SettingsFragment.kt      설정 UI (반경/도어/음성/TTS)
+│       └── SettingsViewModel.kt     SharedPreferences 저장/로드
 └── domain/usecase/                  (Sprint 5+)
 ```
 
