@@ -28,9 +28,6 @@ interface PublicRestroomApi {
         @Query("serviceKey") serviceKey: String,
         @Query("pageNo") pageNo: Int = 1,
         @Query("numOfRows") numOfRows: Int = 100,
-        @Query("returnType") returnType: String = "json",
-        @Query("cond[BASE_DATE::EQ]") baseDate: String,
-        @Query("cond[OPN_ATMY_GRP_CD::EQ]") atmyCode: String = "",
-        @Query("cond[LCTN_ROAD_NM_ADDR::LIKE]") roadAddr: String = ""
+        @Query("returnType") returnType: String = "json"
     ): PublicRestroomResponse
 }

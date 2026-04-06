@@ -69,8 +69,10 @@ data class PublicRestroom(
     @SerializedName("TELNO") val phone: String?,
     /** 관리기관명 */
     @SerializedName("MNG_INST_NM") val institution: String?,
-    /** 화장실 구분 (공중화장실, 개방화장실 등) */
-    @SerializedName("RSTRM_PSN_SE") val toiletType: String?,
+    /** 화장실 구분 (공공기관-지방자치단체 등) */
+    @SerializedName("RSTRM_PSN_SE_NM") val toiletType: String?,
+    /** 화장실 유형 (공중화장실, 개방화장실 등) */
+    @SerializedName("SE_NM") val category: String?,
     /** 설치 연월 */
     @SerializedName("INSTL_YM") val installDate: String?,
     /** 비상벨 설치 여부 */

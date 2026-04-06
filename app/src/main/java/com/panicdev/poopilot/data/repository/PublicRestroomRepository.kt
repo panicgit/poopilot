@@ -5,9 +5,6 @@ import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.PublicRestroomApi
 import com.panicdev.poopilot.data.model.KakaoPlace
 import com.panicdev.poopilot.data.model.PublicRestroom
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.atan2
@@ -47,11 +44,8 @@ class PublicRestroomRepository @Inject constructor(
             return Result.success(emptyList())
         }
         return try {
-            // 오늘 날짜를 데이터 기준일자로 사용 (YYYYMMDD 형식)
-            val baseDate = SimpleDateFormat("yyyyMMdd", Locale.KOREA).format(Date())
             val response = publicRestroomApi.searchPublicRestrooms(
-                serviceKey = PUBLIC_API_KEY,
-                baseDate = baseDate
+                serviceKey = PUBLIC_API_KEY
             )
             val items = response.response?.body?.items?.item ?: emptyList()
             val nearby = items
@@ -90,7 +84,7 @@ class PublicRestroomRepository @Inject constructor(
             x = restroom.longitude ?: "0",
             y = restroom.latitude ?: "0",
             distance = distance.toString(),
-            categoryName = "공중화장실 > ${restroom.toiletType ?: "일반"}",
+            categoryName = "${restroom.category ?: "공중화장실"} > ${restroom.toiletType ?: "일반"}",
             phone = restroom.phone ?: ""
         )
     }
