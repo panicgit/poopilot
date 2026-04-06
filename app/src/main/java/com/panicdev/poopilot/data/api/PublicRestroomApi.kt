@@ -5,34 +5,32 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 /**
- * 공공데이터포털의 공중화장실 정보 API와 통신하는 인터페이스입니다.
+ * 공공데이터포털의 행정안전부 공중화장실 정보 API와 통신하는 인터페이스입니다.
  *
- * 행정안전부에서 제공하는 공중화장실 위치 공공 API를 활용해
- * 전국의 공중화장실 정보를 조회할 수 있습니다.
- * Retrofit 라이브러리가 이 인터페이스를 보고 실제 네트워크 요청 코드를 자동으로 만들어 줍니다.
- *
- * 공식 문서: https://www.data.go.kr (공공데이터포털 - 공중화장실 정보)
+ * Base URL: https://apis.data.go.kr/1741000/public_restroom_info/
+ * 오퍼레이션: /info (공중화장실정보 데이터 이력조회)
  */
 interface PublicRestroomApi {
 
     /**
      * 공중화장실 목록을 조회합니다.
      *
-     * 공공데이터포털 API를 호출해 주소 조건에 맞는 공중화장실 목록을 페이지 단위로 가져옵니다.
-     *
-     * @param serviceKey 공공데이터포털에서 발급받은 서비스 인증키
-     * @param pageNo 가져올 페이지 번호 (1부터 시작, 기본값 1)
-     * @param numOfRows 한 페이지에 가져올 항목 수 (기본값 10개)
-     * @param type 응답 데이터 형식 ("json" 또는 "xml", 기본값 "json")
-     * @param address 검색할 주소 (지번 주소 기준, 빈 문자열이면 전체 조회)
-     * @return 조회된 공중화장실 목록과 응답 정보를 담은 [PublicRestroomResponse]
+     * @param serviceKey 공공데이터포털에서 발급받은 서비스 인증키 (인코딩 키 사용)
+     * @param pageNo 페이지 번호 (1부터 시작)
+     * @param numOfRows 한 페이지 결과 수 (최대 100)
+     * @param returnType 응답 데이터 형식 ("json" 또는 "xml")
+     * @param baseDate 데이터 기준일자 (YYYYMMDD 형식)
+     * @param atmyCode 개방자치단체코드 (예: "3000000")
+     * @param roadAddr 소재지도로명주소 검색 (LIKE 조건, 선택)
      */
-    @GET("openapi/tn_pubr_public_toilet_api")
+    @GET("info")
     suspend fun searchPublicRestrooms(
         @Query("serviceKey") serviceKey: String,
         @Query("pageNo") pageNo: Int = 1,
-        @Query("numOfRows") numOfRows: Int = 10,
-        @Query("type") type: String = "json",
-        @Query("lnmadr") address: String = ""
+        @Query("numOfRows") numOfRows: Int = 100,
+        @Query("returnType") returnType: String = "json",
+        @Query("cond[BASE_DATE::EQ]") baseDate: String,
+        @Query("cond[OPN_ATMY_GRP_CD::EQ]") atmyCode: String = "",
+        @Query("cond[LCTN_ROAD_NM_ADDR::LIKE]") roadAddr: String = ""
     ): PublicRestroomResponse
 }

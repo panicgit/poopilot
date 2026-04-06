@@ -86,7 +86,7 @@ object NetworkModule {
      * 공공데이터 포털(data.go.kr)에서 제공하는 전국 공중화장실 데이터를
      * 조회할 때 사용합니다.
      *
-     * 기본 URL: https://api.odcloud.kr/api/
+     * 기본 URL: https://apis.data.go.kr/1741000/public_restroom_info/
      *
      * @param client 네트워크 요청에 사용할 [OkHttpClient]
      * @return Retrofit으로 생성된 [PublicRestroomApi] 서비스 인스턴스
@@ -95,7 +95,7 @@ object NetworkModule {
     @Singleton
     fun providePublicRestroomApi(client: OkHttpClient): PublicRestroomApi {
         return Retrofit.Builder()
-            .baseUrl("https://api.odcloud.kr/api/")
+            .baseUrl("https://apis.data.go.kr/1741000/public_restroom_info/")
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
