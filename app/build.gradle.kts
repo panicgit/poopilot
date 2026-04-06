@@ -5,6 +5,14 @@ plugins {
     id("com.google.dagger.hilt.android")
 }
 
+// local.properties에서 API 키를 읽어옵니다
+import java.util.Properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
 android {
     namespace = "com.panicdev.poopilot"
     compileSdk = 36
@@ -19,10 +27,10 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // API keys from local.properties (do not commit actual keys)
-        buildConfigField("String", "KAKAO_API_KEY", "\"${project.findProperty("KAKAO_API_KEY") ?: ""}\"")
-        buildConfigField("String", "PUBLIC_DATA_API_KEY", "\"${project.findProperty("PUBLIC_DATA_API_KEY") ?: ""}\"")
-        buildConfigField("String", "NAVER_CLIENT_ID", "\"${project.findProperty("NAVER_CLIENT_ID") ?: ""}\"")
-        buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${project.findProperty("NAVER_CLIENT_SECRET") ?: ""}\"")
+        buildConfigField("String", "KAKAO_API_KEY", "\"${localProperties.getProperty("KAKAO_API_KEY") ?: ""}\"")
+        buildConfigField("String", "PUBLIC_DATA_API_KEY", "\"${localProperties.getProperty("PUBLIC_DATA_API_KEY") ?: ""}\"")
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"${localProperties.getProperty("NAVER_CLIENT_ID") ?: ""}\"")
+        buildConfigField("String", "NAVER_CLIENT_SECRET", "\"${localProperties.getProperty("NAVER_CLIENT_SECRET") ?: ""}\"")
     }
 
     buildTypes {
