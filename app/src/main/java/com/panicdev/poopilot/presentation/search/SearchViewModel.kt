@@ -68,35 +68,47 @@ class SearchViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // 세 가지 API를 순차적으로 호출하여 결과를 가져옵니다
-                val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, radius)
-                val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, radius)
-                val naverResult = naverSearchRepository.searchNearbyRestrooms(latitude, longitude)
-                _isLoading.value = false
+                // 반경을 점진적으로 넓혀가며 검색 (1km → 2km → 3km)
+                val searchRadii = listOf(radius, radius * 2, radius * 3).distinct()
+                var merged = emptyList<KakaoPlace>()
 
-                if (kakaoResult.isFailure && publicResult.isFailure && naverResult.isFailure) {
-                    // 세 API 모두 실패한 경우 네트워크 오류로 판단합니다
-                    _errorMessage.value = "네트워크 오류로 검색에 실패했습니다. 연결 상태를 확인해주세요."
-                    _searchResults.value = emptyList()
-                } else {
+                for (currentRadius in searchRadii) {
+                    val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, currentRadius)
+                    val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, currentRadius)
+                    val naverResult = naverSearchRepository.searchNearbyRestrooms(latitude, longitude)
+
+                    if (kakaoResult.isFailure && publicResult.isFailure && naverResult.isFailure) {
+                        _isLoading.value = false
+                        _errorMessage.value = "네트워크 오류로 검색에 실패했습니다. 연결 상태를 확인해주세요."
+                        _searchResults.value = emptyList()
+                        return@launch
+                    }
+
                     val kakaoPlaces = kakaoResult.getOrDefault(emptyList())
                     val publicPlaces = publicResult.getOrDefault(emptyList())
                     val naverPlaces = naverResult.getOrDefault(emptyList())
-                    // 세 API의 결과를 이름 기준으로 중복 제거하여 합칩니다
-                    val merged = mergeResults(kakaoPlaces, publicPlaces, naverPlaces)
+                    merged = mergeResults(kakaoPlaces, publicPlaces, naverPlaces)
 
-                    if (merged.isEmpty()) {
-                        _errorMessage.value = "반경 ${radius}m 내 화장실을 찾을 수 없습니다. 검색 반경을 넓혀보세요."
-                    } else {
-                        _searchResults.value = merged
+                    if (merged.isNotEmpty()) {
+                        if (currentRadius > radius) {
+                            _errorMessage.value = "반경 ${currentRadius}m로 넓혀서 검색했습니다."
+                        }
                         if (kakaoResult.isFailure || publicResult.isFailure || naverResult.isFailure) {
-                            // 일부 API만 실패한 경우 부분 결과임을 안내합니다
                             _errorMessage.value = "일부 검색 결과만 표시됩니다."
                         }
-                        // 결과가 2개 이상이면 AI에게 최적 화장실을 추천받습니다
-                        if (merged.size > 1) {
-                            filterWithLlm(merged)
-                        }
+                        break
+                    }
+                }
+
+                _isLoading.value = false
+
+                if (merged.isEmpty()) {
+                    _errorMessage.value = "반경 ${searchRadii.last()}m 내 화장실을 찾을 수 없습니다."
+                    _searchResults.value = emptyList()
+                } else {
+                    _searchResults.value = merged
+                    if (merged.size > 1) {
+                        filterWithLlm(merged)
                     }
                 }
             } catch (e: Exception) {

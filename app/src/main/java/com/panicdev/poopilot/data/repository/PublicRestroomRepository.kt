@@ -1,10 +1,14 @@
 package com.panicdev.poopilot.data.repository
 
+import android.content.Context
+import android.location.Geocoder
 import android.util.Log
 import com.panicdev.poopilot.BuildConfig
 import com.panicdev.poopilot.data.api.PublicRestroomApi
 import com.panicdev.poopilot.data.model.KakaoPlace
 import com.panicdev.poopilot.data.model.PublicRestroom
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.atan2
@@ -21,7 +25,8 @@ import kotlin.math.sqrt
  */
 @Singleton
 class PublicRestroomRepository @Inject constructor(
-    private val publicRestroomApi: PublicRestroomApi
+    private val publicRestroomApi: PublicRestroomApi,
+    @ApplicationContext private val context: Context
 ) {
     /**
      * 주어진 위도/경도를 기준으로 반경 내의 공중화장실 목록을 검색합니다.
@@ -44,10 +49,15 @@ class PublicRestroomRepository @Inject constructor(
             return Result.success(emptyList())
         }
         return try {
+            // 좌표를 주소로 변환하여 해당 시/구 지역만 필터링 (전국 랜덤 100건 방지)
+            val addressKeyword = getDistrictName(latitude, longitude)
+            Log.d(TAG, "Public API search with address filter: '$addressKeyword'")
             val response = publicRestroomApi.searchPublicRestrooms(
-                serviceKey = PUBLIC_API_KEY
+                serviceKey = PUBLIC_API_KEY,
+                roadAddr = addressKeyword
             )
             val items = response.response?.body?.items?.item ?: emptyList()
+            Log.d(TAG, "Public API returned ${items.size} items, filtering by ${radius}m radius")
             val nearby = items
                 .filter { it.latitude != null && it.longitude != null }
                 .mapNotNull { restroom ->
@@ -114,10 +124,33 @@ class PublicRestroomRepository @Inject constructor(
         return (r * c).toInt()
     }
 
+    /**
+     * 좌표를 시/구 단위 주소로 변환합니다.
+     * 예: (37.4127, 127.0947) → "성남시 분당구"
+     * 변환 실패 시 빈 문자열을 반환합니다 (전체 검색으로 폴백).
+     */
+    @Suppress("DEPRECATION")
+    private fun getDistrictName(latitude: Double, longitude: Double): String {
+        return try {
+            val geocoder = Geocoder(context, Locale.KOREA)
+            val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+            if (!addresses.isNullOrEmpty()) {
+                val addr = addresses[0]
+                // 시/구 단위로 필터링 (예: "성남시 분당구", "서울특별시 강남구")
+                val locality = addr.locality ?: addr.subAdminArea ?: ""
+                val subLocality = addr.subLocality ?: ""
+                val result = "$locality $subLocality".trim()
+                Log.d(TAG, "Reverse geocoded: $result (full: ${addr.getAddressLine(0)})")
+                result
+            } else ""
+        } catch (e: Exception) {
+            Log.w(TAG, "Reverse geocoding failed, searching without address filter", e)
+            ""
+        }
+    }
+
     companion object {
-        /** 로그 태그 */
         private const val TAG = "PublicRestroomRepo"
-        /** 공공 데이터 포털 API 키 (BuildConfig에서 주입됨) */
         private val PUBLIC_API_KEY = BuildConfig.PUBLIC_DATA_API_KEY
     }
 }

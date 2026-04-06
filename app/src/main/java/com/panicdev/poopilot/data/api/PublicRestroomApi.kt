@@ -28,6 +28,7 @@ interface PublicRestroomApi {
         @Query("serviceKey") serviceKey: String,
         @Query("pageNo") pageNo: Int = 1,
         @Query("numOfRows") numOfRows: Int = 100,
-        @Query("returnType") returnType: String = "json"
+        @Query("returnType") returnType: String = "json",
+        @Query("cond[LCTN_ROAD_NM_ADDR::LIKE]") roadAddr: String = ""
     ): PublicRestroomResponse
 }
