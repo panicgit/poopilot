@@ -1,6 +1,7 @@
 package com.panicdev.poopilot.presentation.settings
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,6 +66,7 @@ class SettingsFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("ATP_SCREEN", "enter: ${this::class.simpleName}")
 
         // 뒤로가기 버튼: 이전 화면(메인)으로 돌아갑니다
         binding.btnBack.setOnClickListener {
@@ -103,6 +105,7 @@ class SettingsFragment : Fragment() {
     private fun observeViewModel() {
         // 검색 반경이 변경되면 선택된 버튼을 강조 표시합니다
         viewModel.searchRadius.observe(viewLifecycleOwner) { radius ->
+            Log.d("ATP_RENDER", "renderState: screen=SettingsFragment, searchRadius=$radius")
             updateRadiusUI(radius)
         }
         // 도어 잠금 해제 설정이 변경되면 스위치 상태를 조용히 업데이트합니다

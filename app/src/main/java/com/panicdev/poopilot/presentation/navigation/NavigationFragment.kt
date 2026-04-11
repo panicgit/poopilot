@@ -1,6 +1,7 @@
 package com.panicdev.poopilot.presentation.navigation
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,6 +54,7 @@ class NavigationFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("ATP_SCREEN", "enter: ${this::class.simpleName}")
 
         // Bundle에서 목적지 정보 수신
         val destName = arguments?.getString("destName") ?: ""
@@ -111,6 +113,7 @@ class NavigationFragment : Fragment() {
 
         // 다음 회전 안내(TBT)가 있으면 표시하고, 없으면 숨깁니다
         navViewModel.tbtDescription.observe(viewLifecycleOwner) { desc ->
+            Log.d("ATP_RENDER", "renderState: screen=NavigationFragment, tbtVisible=${!desc.isNullOrBlank()}, tbtDesc=$desc")
             binding.tvTbtDesc?.let { tv ->
                 tv.text = desc
                 tv.visibility = if (desc.isNullOrBlank()) View.GONE else View.VISIBLE

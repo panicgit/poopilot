@@ -1,0 +1,45 @@
+flowchart TD
+    subgraph External["External Entry Points"]
+        LAUNCHER["Android Launcher"]
+        GLEO_AI["Gleo AI Assistant"]
+        VOICE["Voice Command (STT)"]
+    end
+
+    subgraph Activity["MainActivity"]
+        MA["MainActivity\n(Entry Point, Location Permission)"]
+    end
+
+    subgraph NavGraph["Navigation Graph (nav_graph.xml)"]
+        MAIN["MainFragment\n(startDestination)\n- Emergency Button\n- Favorites List\n- Recent Visits"]
+        SEARCH["SearchFragment\n- Kakao/Naver/Public API Results\n- LLM Recommendation"]
+        NAV["NavigationFragment\n- TBT Turn-by-Turn\n- Remaining Distance/Time\n- Door Unlock on Arrival"]
+        SETTINGS["SettingsFragment\n- Search Radius\n- Door Unlock Toggle\n- Voice Command Toggle\n- TTS Toggle"]
+    end
+
+    subgraph EventBus["Event System"]
+        GLEO_BUS["GleoCommandBus\n(SharedFlow)"]
+        GLEO_RECV["GleoAiReceiver\n(BroadcastReceiver)"]
+    end
+
+    %% External → Activity
+    LAUNCHER -->|"intent: MAIN/LAUNCHER"| MA
+    GLEO_AI -->|"intent: ACTION_ACTIVATE\nACTION_CANCEL"| GLEO_RECV
+    GLEO_RECV -->|"startActivity + EXTRA_GLEO_COMMAND"| MA
+
+    %% Activity → Fragment
+    MA -->|"setContentView + NavHost"| MAIN
+
+    %% GleoCommandBus flow
+    MA -->|"handleGleoIntent()"| GLEO_BUS
+    GLEO_BUS -->|"Activate → activateEmergencyMode()"| MAIN
+    GLEO_BUS -->|"Cancel → resetToStandby()"| MAIN
+    VOICE -->|"VoiceActivationService"| MAIN
+
+    %% Fragment Navigation
+    MAIN -->|"action_main_to_search\n(Emergency Mode)"| SEARCH
+    MAIN -->|"action_main_to_settings"| SETTINGS
+    SEARCH -->|"action_search_to_navigation\n(Bundle: destName, destAddr, destLat, destLng)"| NAV
+    SEARCH -->|"action_search_to_main\n(popUpTo, Close button)"| MAIN
+    NAV -->|"action_navigation_to_main\n(popUpTo, Cancel/Arrival)"| MAIN
+    SETTINGS -->|"navigateUp()\n(Back button)"| MAIN
+    NAV -->|"navigateUp()\n(Change Route)"| SEARCH

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -29,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        Log.d("ATP_SCREEN", "enter: ${this::class.simpleName}")
         // 앱 시작 시 위치 권한을 확인하고, 없으면 사용자에게 요청합니다.
         requestLocationPermission()
         // 앱이 Gleo AI 명령 인텐트로 실행된 경우 해당 명령을 처리합니다.

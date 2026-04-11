@@ -1,0 +1,168 @@
+{
+  "apis": [
+    {
+      "endpoint": "GET v2/local/search/keyword.json",
+      "service": "Kakao Local API",
+      "interfaceFile": "KakaoLocalApi.kt:31",
+      "baseUrl": "https://dapi.kakao.com/",
+      "parameters": ["apiKey (Header)", "query", "longitude (x)", "latitude (y)", "radius=1000", "sort=distance"],
+      "callers": [
+        {
+          "repository": "RestroomRepository",
+          "method": "searchNearbyRestrooms",
+          "calledFrom": [
+            {
+              "file": "SearchViewModel.kt:76",
+              "context": "searchRestrooms() - 3개 API 동시 호출, 반경 점진 확장 (1km→2km→3km)",
+              "successHandler": "SearchViewModel.kt:87 - kakaoResult.getOrDefault() → mergeResults()",
+              "errorHandler": "SearchViewModel.kt:80-85 - 3개 API 모두 실패 시 '네트워크 오류' 메시지"
+            },
+            {
+              "file": "NavigationViewModel.kt:244",
+              "context": "checkForCloserRestroom() - 주행 중 2분 간격으로 더 가까운 화장실 재탐색",
+              "successHandler": "NavigationViewModel.kt:246-257 - 50m 이상 차이나는 더 가까운 곳 발견 시 closerPlaceSuggestion 발행",
+              "errorHandler": "NavigationViewModel.kt:221 - catch로 무시 (위치 획득 실패 시 skip)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "GET v1/search/local.json",
+      "service": "Naver Local Search API",
+      "interfaceFile": "NaverSearchApi.kt:30",
+      "baseUrl": "https://openapi.naver.com/",
+      "parameters": ["clientId (Header)", "clientSecret (Header)", "query", "display=5", "sort=random"],
+      "callers": [
+        {
+          "repository": "NaverSearchRepository",
+          "method": "searchNearbyRestrooms",
+          "calledFrom": [
+            {
+              "file": "SearchViewModel.kt:78",
+              "context": "searchRestrooms() - 카카오/공공과 함께 동시 호출",
+              "successHandler": "SearchViewModel.kt:89 - naverResult.getOrDefault() → mergeResults()에서 중복 제거",
+              "errorHandler": "SearchViewModel.kt:80-85 - 3개 모두 실패 시 에러, 일부 실패 시 '일부 결과만 표시'"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "GET info",
+      "service": "Public Data Portal (행정안전부 공중화장실 API)",
+      "interfaceFile": "PublicRestroomApi.kt:26",
+      "baseUrl": "https://apis.data.go.kr/1741000/public_restroom_info/",
+      "parameters": ["serviceKey", "pageNo=1", "numOfRows=100", "returnType=json", "roadAddr (LIKE)"],
+      "callers": [
+        {
+          "repository": "PublicRestroomRepository",
+          "method": "searchNearbyPublicRestrooms",
+          "calledFrom": [
+            {
+              "file": "SearchViewModel.kt:77",
+              "context": "searchRestrooms() - 카카오/네이버와 함께 동시 호출",
+              "successHandler": "SearchViewModel.kt:88 - publicResult.getOrDefault() → mergeResults()에서 중복 제거",
+              "errorHandler": "SearchViewModel.kt:80-85 - 3개 모두 실패 시 에러"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "LLM generateContent (Pleos Gleo AI SDK)",
+      "service": "Pleos LLM SDK",
+      "interfaceFile": "LlmRepository (SDK wrapper, not Retrofit)",
+      "callers": [
+        {
+          "repository": "LlmRepository",
+          "method": "generateContent",
+          "calledFrom": [
+            {
+              "file": "SearchViewModel.kt:162",
+              "context": "filterWithLlm() - 검색 결과 2개 이상일 때 AI 추천 요청",
+              "successHandler": "SearchViewModel.kt:163-169 - 응답에서 숫자 추출 → llmRecommendation에 추천 화장실명 저장",
+              "errorHandler": "implicit - result.onSuccess만 처리, 실패 시 무시 (추천 없음)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "NaviHelper SDK (경로 안내)",
+      "service": "Pleos NaviHelper SDK",
+      "interfaceFile": "NavigationRepository (SDK wrapper, not Retrofit)",
+      "callers": [
+        {
+          "repository": "NavigationRepository",
+          "method": "startNavigation / cancelRoute / getTBTInfo / requestReRoute",
+          "calledFrom": [
+            {
+              "file": "NavigationViewModel.kt:184-193",
+              "context": "startNavigation() - 목적지 좌표로 경로 안내 시작",
+              "successHandler": "NavigationViewModel.kt:117-167 - NavigationEvent Flow 수신 (RouteStarted, TBTUpdated, DrivingInfoUpdated, DestinationArrived)",
+              "errorHandler": "NavigationViewModel.kt:192 - catch → '경로 설정 실패' 메시지"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "Vehicle Door SDK",
+      "service": "Pleos Vehicle SDK",
+      "interfaceFile": "DoorRepository (SDK wrapper)",
+      "callers": [
+        {
+          "repository": "DoorRepository",
+          "method": "unlockDriverDoor",
+          "calledFrom": [
+            {
+              "file": "NavigationViewModel.kt:151",
+              "context": "DestinationArrived 이벤트 시 doorUnlockEnabled 설정이 켜져 있으면 호출",
+              "successHandler": "NavigationViewModel.kt:152-153 - '도착했습니다! 문이 열렸습니다!' TTS + 토스트",
+              "errorHandler": "implicit - DoorRepository 내부 처리"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "TTS SDK (음성 안내)",
+      "service": "Pleos TextToSpeech SDK",
+      "interfaceFile": "TtsRepository (SDK wrapper)",
+      "callers": [
+        {
+          "repository": "TtsRepository",
+          "method": "speak / initialize / stop",
+          "calledFrom": [
+            {
+              "file": "NavigationViewModel.kt:326-329",
+              "context": "speakIfAvailable() - ttsEnabled 설정에 따라 음성 안내",
+              "successHandler": "implicit - TTS 재생",
+              "errorHandler": "implicit - TtsRepository 내부 처리"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "endpoint": "STT SDK (음성 인식)",
+      "service": "Pleos SpeechToText SDK",
+      "interfaceFile": "SttRepository / VoiceActivationService (SDK wrapper)",
+      "callers": [
+        {
+          "repository": "VoiceActivationService",
+          "method": "start / stop / activationEvents",
+          "calledFrom": [
+            {
+              "file": "MainViewModel.kt:137-146",
+              "context": "startVoiceActivation() - 키워드 감지 시 급똥 모드 자동 활성화",
+              "successHandler": "MainViewModel.kt:141-143 - STANDBY 상태에서만 voiceActivated=true → activateEmergencyMode()",
+              "errorHandler": "implicit"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

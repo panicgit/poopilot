@@ -1,6 +1,7 @@
 package com.panicdev.poopilot.presentation.search
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -56,6 +57,7 @@ class SearchFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("ATP_SCREEN", "enter: ${this::class.simpleName}")
 
         setupRecyclerView()
         observeViewModel()
@@ -93,6 +95,7 @@ class SearchFragment : Fragment() {
     private fun observeViewModel() {
         // 검색 중에는 로딩 인디케이터와 "검색 중..." 텍스트를 표시합니다
         searchViewModel.isLoading.observe(viewLifecycleOwner) { loading ->
+            Log.d("ATP_RENDER", "renderState: screen=SearchFragment, isLoading=$loading")
             binding.progressBar.visibility = if (loading) View.VISIBLE else View.GONE
             binding.tvSearchTitle.text = if (loading) "화장실 검색 중..." else "검색 결과"
             binding.tvSearchSub.visibility = if (loading) View.VISIBLE else View.GONE
@@ -100,6 +103,7 @@ class SearchFragment : Fragment() {
 
         // 검색 결과 목록이 업데이트되면 어댑터에 전달하여 화면에 표시합니다
         searchViewModel.searchResults.observe(viewLifecycleOwner) { results ->
+            Log.d("ATP_RENDER", "renderState: screen=SearchFragment, searchResultsCount=${results.size}")
             adapter.submitList(results)
         }
 

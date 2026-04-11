@@ -1,5 +1,6 @@
 package com.panicdev.poopilot.presentation.search
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -74,8 +75,11 @@ class SearchViewModel @Inject constructor(
 
                 for (currentRadius in searchRadii) {
                     val kakaoResult = restroomRepository.searchNearbyRestrooms(latitude, longitude, currentRadius)
+                    Log.d("ATP_API", "apiResponse: endpoint=KakaoLocal/searchByKeyword, status=${if (kakaoResult.isSuccess) "SUCCESS" else "FAIL"}, bodyLength=${kakaoResult.getOrNull()?.size ?: 0}")
                     val publicResult = publicRestroomRepository.searchNearbyPublicRestrooms(latitude, longitude, currentRadius)
+                    Log.d("ATP_API", "apiResponse: endpoint=PublicRestroom/searchPublicRestrooms, status=${if (publicResult.isSuccess) "SUCCESS" else "FAIL"}, bodyLength=${publicResult.getOrNull()?.size ?: 0}")
                     val naverResult = naverSearchRepository.searchNearbyRestrooms(latitude, longitude)
+                    Log.d("ATP_API", "apiResponse: endpoint=NaverSearch/searchLocal, status=${if (naverResult.isSuccess) "SUCCESS" else "FAIL"}, bodyLength=${naverResult.getOrNull()?.size ?: 0}")
 
                     if (kakaoResult.isFailure && publicResult.isFailure && naverResult.isFailure) {
                         _isLoading.value = false
@@ -160,6 +164,7 @@ class SearchViewModel @Inject constructor(
 $placeList"""
 
             val result = llmRepository.generateContent(prompt)
+            Log.d("ATP_API", "apiResponse: endpoint=LLM/generateContent, status=${if (result.isSuccess) "SUCCESS" else "FAIL"}, bodyLength=${result.getOrNull()?.length ?: 0}")
             result.onSuccess { response ->
                 // 응답에서 숫자만 추출하여 추천 화장실의 인덱스로 사용합니다
                 val recommendedIndex = response.trim().filter { it.isDigit() }.toIntOrNull()

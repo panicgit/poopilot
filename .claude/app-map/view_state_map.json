@@ -1,0 +1,217 @@
+{
+  "screens": [
+    {
+      "name": "MainFragment",
+      "file": "MainFragment.kt",
+      "viewModel": "MainViewModel",
+      "states": [
+        {
+          "viewId": "tvStatus",
+          "property": "text",
+          "conditions": [
+            { "when": "appState == SEARCHING", "value": "검색 중..." },
+            { "when": "appState == STANDBY", "value": "대기 중" }
+          ],
+          "dataSource": "MainViewModel.appState (LiveData<AppState>)",
+          "sourceFile": "MainFragment.kt:122-132"
+        },
+        {
+          "viewId": "statusDot",
+          "property": "background",
+          "conditions": [
+            { "when": "appState == SEARCHING", "value": "R.drawable.status_dot_purple" },
+            { "when": "appState == STANDBY", "value": "R.drawable.status_dot_green" }
+          ],
+          "dataSource": "MainViewModel.appState (LiveData<AppState>)",
+          "sourceFile": "MainFragment.kt:125-130"
+        },
+        {
+          "viewId": "rvFavorites",
+          "property": "visibility",
+          "conditions": [
+            { "when": "favorites.isNotEmpty()", "value": "VISIBLE" },
+            { "when": "favorites.isEmpty()", "value": "GONE" }
+          ],
+          "dataSource": "MainViewModel.favorites (LiveData<List<FavoriteRestroom>>)",
+          "sourceFile": "MainFragment.kt:136-140"
+        },
+        {
+          "viewId": "tvFavEmpty",
+          "property": "visibility",
+          "conditions": [
+            { "when": "favorites.isEmpty()", "value": "VISIBLE" },
+            { "when": "favorites.isNotEmpty()", "value": "GONE" }
+          ],
+          "dataSource": "MainViewModel.favorites (LiveData<List<FavoriteRestroom>>)",
+          "sourceFile": "MainFragment.kt:139"
+        },
+        {
+          "viewId": "rvRecent",
+          "property": "visibility",
+          "conditions": [
+            { "when": "recentVisits.isNotEmpty()", "value": "VISIBLE" },
+            { "when": "recentVisits.isEmpty()", "value": "GONE" }
+          ],
+          "dataSource": "MainViewModel.recentVisits (LiveData<List<FavoriteRestroom>>)",
+          "sourceFile": "MainFragment.kt:142-146"
+        },
+        {
+          "viewId": "tvRecentEmpty",
+          "property": "visibility",
+          "conditions": [
+            { "when": "recentVisits.isEmpty()", "value": "VISIBLE" },
+            { "when": "recentVisits.isNotEmpty()", "value": "GONE" }
+          ],
+          "dataSource": "MainViewModel.recentVisits (LiveData<List<FavoriteRestroom>>)",
+          "sourceFile": "MainFragment.kt:145"
+        }
+      ]
+    },
+    {
+      "name": "SearchFragment",
+      "file": "SearchFragment.kt",
+      "viewModel": "SearchViewModel + MainViewModel (shared)",
+      "states": [
+        {
+          "viewId": "progressBar",
+          "property": "visibility",
+          "conditions": [
+            { "when": "isLoading == true", "value": "VISIBLE" },
+            { "when": "isLoading == false", "value": "GONE" }
+          ],
+          "dataSource": "SearchViewModel.isLoading (LiveData<Boolean>)",
+          "sourceFile": "SearchFragment.kt:95-96"
+        },
+        {
+          "viewId": "tvSearchTitle",
+          "property": "text",
+          "conditions": [
+            { "when": "isLoading == true", "value": "화장실 검색 중..." },
+            { "when": "isLoading == false", "value": "검색 결과" }
+          ],
+          "dataSource": "SearchViewModel.isLoading (LiveData<Boolean>)",
+          "sourceFile": "SearchFragment.kt:97"
+        },
+        {
+          "viewId": "tvSearchSub",
+          "property": "visibility",
+          "conditions": [
+            { "when": "isLoading == true", "value": "VISIBLE" },
+            { "when": "isLoading == false", "value": "GONE" }
+          ],
+          "dataSource": "SearchViewModel.isLoading (LiveData<Boolean>)",
+          "sourceFile": "SearchFragment.kt:98"
+        },
+        {
+          "viewId": "rvResults",
+          "property": "data (submitList)",
+          "conditions": [
+            { "when": "searchResults updated", "value": "adapter.submitList(results)" }
+          ],
+          "dataSource": "SearchViewModel.searchResults (LiveData<List<KakaoPlace>>)",
+          "sourceFile": "SearchFragment.kt:102-104"
+        }
+      ]
+    },
+    {
+      "name": "NavigationFragment",
+      "file": "NavigationFragment.kt",
+      "viewModel": "NavigationViewModel + MainViewModel (shared)",
+      "states": [
+        {
+          "viewId": "tvDestName",
+          "property": "text",
+          "conditions": [
+            { "when": "always", "value": "destinationName value" }
+          ],
+          "dataSource": "NavigationViewModel.destinationName (LiveData<String>)",
+          "sourceFile": "NavigationFragment.kt:93-95"
+        },
+        {
+          "viewId": "tvDestAddr",
+          "property": "text",
+          "conditions": [
+            { "when": "always", "value": "destinationAddress value" }
+          ],
+          "dataSource": "NavigationViewModel.destinationAddress (LiveData<String>)",
+          "sourceFile": "NavigationFragment.kt:98-100"
+        },
+        {
+          "viewId": "tvTimeValue",
+          "property": "text",
+          "conditions": [
+            { "when": "always", "value": "remainingTime value (formatted)" }
+          ],
+          "dataSource": "NavigationViewModel.remainingTime (LiveData<String>)",
+          "sourceFile": "NavigationFragment.kt:103-105"
+        },
+        {
+          "viewId": "tvDistValue",
+          "property": "text",
+          "conditions": [
+            { "when": "always", "value": "${remainingDistance} 남음" }
+          ],
+          "dataSource": "NavigationViewModel.remainingDistance (LiveData<String>)",
+          "sourceFile": "NavigationFragment.kt:108-110"
+        },
+        {
+          "viewId": "tvTbtDesc",
+          "property": "text + visibility",
+          "conditions": [
+            { "when": "tbtDescription is null/blank", "value": "GONE" },
+            { "when": "tbtDescription has value", "value": "VISIBLE, text=description" }
+          ],
+          "dataSource": "NavigationViewModel.tbtDescription (LiveData<String>)",
+          "sourceFile": "NavigationFragment.kt:113-118"
+        }
+      ]
+    },
+    {
+      "name": "SettingsFragment",
+      "file": "SettingsFragment.kt",
+      "viewModel": "SettingsViewModel",
+      "states": [
+        {
+          "viewId": "switchDoorUnlock",
+          "property": "isChecked",
+          "conditions": [
+            { "when": "doorUnlockEnabled == true", "value": "checked" },
+            { "when": "doorUnlockEnabled == false", "value": "unchecked" }
+          ],
+          "dataSource": "SettingsViewModel.doorUnlockEnabled (LiveData<Boolean>)",
+          "sourceFile": "SettingsFragment.kt:109-111"
+        },
+        {
+          "viewId": "switchVoice",
+          "property": "isChecked",
+          "conditions": [
+            { "when": "voiceCommandEnabled == true", "value": "checked" },
+            { "when": "voiceCommandEnabled == false", "value": "unchecked" }
+          ],
+          "dataSource": "SettingsViewModel.voiceCommandEnabled (LiveData<Boolean>)",
+          "sourceFile": "SettingsFragment.kt:113-115"
+        },
+        {
+          "viewId": "switchTts",
+          "property": "isChecked",
+          "conditions": [
+            { "when": "ttsEnabled == true", "value": "checked" },
+            { "when": "ttsEnabled == false", "value": "unchecked" }
+          ],
+          "dataSource": "SettingsViewModel.ttsEnabled (LiveData<Boolean>)",
+          "sourceFile": "SettingsFragment.kt:117-119"
+        },
+        {
+          "viewId": "btnRadius500 / btnRadius1km / btnRadius2km",
+          "property": "background + textColor + typeface",
+          "conditions": [
+            { "when": "searchRadius matches button value", "value": "button_selected_bg, text_primary, BOLD" },
+            { "when": "searchRadius does not match", "value": "card_bg, text_secondary, NORMAL" }
+          ],
+          "dataSource": "SettingsViewModel.searchRadius (LiveData<Int>)",
+          "sourceFile": "SettingsFragment.kt:148-166"
+        }
+      ]
+    }
+  ]
+}

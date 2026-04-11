@@ -1,6 +1,7 @@
 package com.panicdev.poopilot.presentation.main
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,6 +54,7 @@ class MainFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d("ATP_SCREEN", "enter: ${this::class.simpleName}")
 
         // 급똥 모드 버튼: 누르면 주변 화장실 즉시 검색을 시작합니다
         binding.btnEmergency.setOnClickListener {
@@ -119,6 +121,7 @@ class MainFragment : Fragment() {
 
         // 앱 상태(검색 중 / 대기 중)에 따라 상태 표시 UI를 업데이트합니다
         viewModel.appState.observe(viewLifecycleOwner) { state ->
+            Log.d("ATP_RENDER", "renderState: screen=MainFragment, appState=$state")
             when (state) {
                 AppState.SEARCHING -> {
                     binding.tvStatus.text = "검색 중..."
@@ -134,6 +137,7 @@ class MainFragment : Fragment() {
 
         // 즐겨찾기 목록이 변경되면 어댑터에 전달하고 빈 상태 뷰를 토글합니다
         viewModel.favorites.observe(viewLifecycleOwner) { list ->
+            Log.d("ATP_RENDER", "renderState: screen=MainFragment, favoritesCount=${list.size}, favoritesVisible=${list.isNotEmpty()}")
             favoritesAdapter?.submitList(list)
             binding.rvFavorites?.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
             binding.tvFavEmpty?.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
@@ -141,6 +145,7 @@ class MainFragment : Fragment() {
 
         // 최근 방문 목록이 변경되면 어댑터에 전달하고 빈 상태 뷰를 토글합니다
         viewModel.recentVisits.observe(viewLifecycleOwner) { list ->
+            Log.d("ATP_RENDER", "renderState: screen=MainFragment, recentCount=${list.size}, recentVisible=${list.isNotEmpty()}")
             recentAdapter?.submitList(list)
             binding.rvRecent?.visibility = if (list.isNotEmpty()) View.VISIBLE else View.GONE
             binding.tvRecentEmpty?.visibility = if (list.isEmpty()) View.VISIBLE else View.GONE

@@ -1,5 +1,6 @@
 package com.panicdev.poopilot.presentation.navigation
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -242,6 +243,7 @@ class NavigationViewModel @Inject constructor(
      */
     private suspend fun checkForCloserRestroom(lat: Double, lng: Double) {
         val result = restroomRepository.searchNearbyRestrooms(lat, lng, settingsRepository.searchRadius)
+        Log.d("ATP_API", "apiResponse: endpoint=KakaoLocal/reSearch, status=${if (result.isSuccess) "SUCCESS" else "FAIL"}, bodyLength=${result.getOrNull()?.size ?: 0}")
         result.onSuccess { places ->
             val closer = places.firstOrNull()
             if (closer != null) {
